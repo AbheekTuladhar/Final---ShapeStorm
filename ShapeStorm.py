@@ -21,20 +21,74 @@ BLACK    = (0, 0, 0)
 BROWN    = (145, 113, 76)
 WHITE    = (255, 255, 255)
 GOLD     = (255, 215, 0)
+GREEN    = (0, 155, 0)
+YELLOW   = (155, 155, 0)
+RED      = (155, 0, 0)
+PURPLE    = (155, 0, 155)
 
 xu = WIDTH//60
 yu = HEIGHT//60
 
-def drawDirectionLine(y):
-    pygame.draw.line(surface, GOLD, [0, y], [1/3*WIDTH, y], 5)
+plague = pygame.image.load("images/Plague.png").convert_alpha()
+slowtime  = pygame.image.load("images/slowtime.png").convert_alpha()
+shield = pygame.image.load("images/shield.png").convert_alpha()
+ammoregen = pygame.image.load("images/ammoregen.png").convert_alpha()
+
+
+def drawDirectionEnemy(x, y, level):
+    if level == 'easy':
+        pygame.draw.rect(surface, GREEN, (x, y, 1.5*xu, 1.5*xu), 0)
+    elif level == 'medium':
+        pygame.draw.rect(surface, YELLOW, (x, y, 1.5*xu, 1.5*xu), 0)
+    elif level == 'hard':
+        pygame.draw.rect(surface, RED, (x, y, 1.5*xu, 1.5*xu), 0)
+    elif level == 'insane':
+        pygame.draw.rect(surface, PURPLE, (x, y, 1.5*xu, 1.5*xu), 0)
+
+
+def drawDirectionLine(y, horz = True, length = None):
+    if horz:
+        pygame.draw.line(surface, GOLD, [0, y], [1/3*WIDTH, y], 5)
+    else:
+        pygame.draw.line(surface, GOLD, [WIDTH * 1/6, y], [WIDTH * 1/6, y + length], 5)
 
 def drawScreen():
+    #Directions
     pygame.draw.rect(surface, BROWN, (0, 0, WIDTH * 1/3, HEIGHT))
+    pygame.draw.line(surface, GOLD, (WIDTH * 1/3, HEIGHT//2), (WIDTH, HEIGHT//2), 5)
     drawDirectionLine(4*yu)
 
     show_message("Directions:", "Consolas", 40, 10*xu, 2* yu, GOLD)
     show_message("<-- --> : Movement", "Consolas", 30, 10*xu, 6*yu, GOLD)
     show_message(" A   D  : Movement", "Consolas", 30, 10*xu, 8*yu, GOLD)
+    show_message("Space  : Shoot", "Consolas", 30, 9.2*xu, 10*yu, GOLD) #9.2 to allign the :
+
+    drawDirectionLine(12*yu)
+
+    surface.blit(pygame.transform.scale(plague, (65, 65)), (0, 13*yu)) #draw plague image
+    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 15, 12*xu, 15*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(slowtime, (65, 65)), (0, 17*yu)) #draw slowtime image
+    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 15, 11.6*xu, 19*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(shield, (65, 65)), (0, 22*yu)) #draw shield image
+    show_message("Shield for 3 seconds", "Consolas", 15, 7.5*xu, 24*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(ammoregen, (65, 65)), (0, 27*yu)) #draw ammoregen image
+    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 15, 12*xu, 29*yu, GOLD)
+
+    show_message("Powerups spawn below the half way line", "Consolas", 15, 10*xu, 33*yu, GOLD)
+
+    drawDirectionLine(35*yu)
+    drawDirectionLine(35*yu, False, 8*yu)
+    drawDirectionLine(43*yu)
+    drawDirectionLine(39*yu)
+
+    drawDirectionEnemy(5, 36*yu, 'easy')
+    drawDirectionEnemy(5, 40*yu, 'medium')
+    drawDirectionEnemy(10.8*xu, 36*yu, 'hard')
+    drawDirectionEnemy(10.8*xu, 40*yu, 'insane')
+
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
