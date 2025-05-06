@@ -21,10 +21,11 @@ BLACK    = (0, 0, 0)
 BROWN    = (145, 113, 76)
 WHITE    = (255, 255, 255)
 GOLD     = (255, 215, 0)
-GREEN    = (0, 155, 0)
-YELLOW   = (155, 155, 0)
-RED      = (155, 0, 0)
-PURPLE    = (155, 0, 155)
+GREEN    = (0, 200, 0)
+YELLOW   = (200, 200, 0)
+RED      = (200, 0, 0)
+PURPLE   = (200, 0, 200)
+BLUE     = (173, 216, 230)
 
 xu = WIDTH//60
 yu = HEIGHT//60
@@ -33,26 +34,146 @@ plague = pygame.image.load("images/Plague.png").convert_alpha()
 slowtime  = pygame.image.load("images/slowtime.png").convert_alpha()
 shield = pygame.image.load("images/shield.png").convert_alpha()
 ammoregen = pygame.image.load("images/ammoregen.png").convert_alpha()
+heart = pygame.image.load("images/heart.png").convert_alpha()
+heart = pygame.transform.scale(heart, (xu, xu))
+dodger = pygame.image.load("images/dodger.png").convert_alpha()
+dash = pygame.image.load("images/dash.png").convert_alpha()
+rotation = pygame.image.load("images/rotation.png").convert_alpha()
+bumper = pygame.image.load("images/bumper.png").convert_alpha()
+teleport = pygame.image.load("images/teleport.png").convert_alpha()
 
 
 def drawDirectionEnemy(x, y, level):
+    """
+    Draws the enemies on the left side of the screen
+
+    Parameters:
+    -----------
+    x : int
+        The x-coordinate of the top left of the enemy.
+    y : int
+        The y-coordinate of the top left of the enemy.
+    level : str
+        The level of the enemy.
+
+    Returns:
+    --------
+    None
+    """
+
     if level == 'easy':
         pygame.draw.rect(surface, GREEN, (x, y, 1.5*xu, 1.5*xu), 0)
+
+        #Eyes
+        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.3*yu), (x + 0.5*xu, y + 1.0*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.3*yu), (x + 1.1*xu, y + 1.0*yu), 1)
+
+        #Draw Smile
+        pygame.draw.arc(surface, BLACK, (x + 0.3*xu, y + 0.5*yu, xu, xu), 3.28, -0.14, 1)
+
     elif level == 'medium':
         pygame.draw.rect(surface, YELLOW, (x, y, 1.5*xu, 1.5*xu), 0)
+
+        #Eyes
+        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.3*yu), (x + 0.5*xu, y + 1.0*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.3*yu), (x + 1.1*xu, y + 1.0*yu), 1)
+
+        #Draw Smile
+        pygame.draw.line(surface, BLACK, (x+0.5*xu, y + 1.5*yu), (x + 1.1*xu, y + 1.5*yu), 1)
+
+        #Draw Eye brows
+        pygame.draw.line(surface, BLACK, (x+0.3*xu, y+0.2*yu), (x+0.7*xu, y+0.2*yu), 1)
+        pygame.draw.line(surface, BLACK, (x+0.9*xu, y+0.2*yu), (x+1.3*xu, y+0.2*yu), 1)
+
     elif level == 'hard':
         pygame.draw.rect(surface, RED, (x, y, 1.5*xu, 1.5*xu), 0)
+
+        #Eyes
+        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.5*yu), (x + 0.5*xu, y + 1.3*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.5*yu), (x + 1.1*xu, y + 1.3*yu), 1)
+
+        #Draw Smile
+        pygame.draw.arc(surface, BLACK, (x + 0.3*xu, y + 0.5*yu, xu, xu), 3.28, -0.14, 1)
+
+        #Draw Angry Eye brows
+        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+0.2*xu, y+0.1*yu), 1)
+        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+1.2*xu, y+0.1*yu), 1)
+
     elif level == 'insane':
         pygame.draw.rect(surface, PURPLE, (x, y, 1.5*xu, 1.5*xu), 0)
 
+        #Eyes
+        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.5*yu), (x + 0.5*xu, y + 1.3*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.5*yu), (x + 1.1*xu, y + 1.3*yu), 1)
+
+        #Draw Smile
+        pygame.draw.line(surface, BLACK, (x+0.5*xu, y + 1.6*yu), (x + 1.1*xu, y + 1.5*yu), 1)
+        pygame.draw.arc(surface, BLACK, (x+0.5*xu, y + 0.9*yu, 0.6*xu, 0.8*xu), 3.28, -0.14, 1)
+
+        #Draw Angry Eye brows
+        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+0.2*xu, y+0.1*yu), 1)
+        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+1.2*xu, y+0.1*yu), 1)
+
 
 def drawDirectionLine(y, horz = True, length = None):
+    """
+    Draws the lines on the left side of the screen
+
+    Parameters:
+    -----------
+    y : int
+        The y-coordinate of the line.
+    horz : bool, optional
+        Whether the line is horizontal or vertical. Defaults to True.
+    length : int, optional
+        The length of the line. Defaults to None.
+
+    Returns:
+    --------
+    None
+    """
+
     if horz:
         pygame.draw.line(surface, GOLD, [0, y], [1/3*WIDTH, y], 5)
     else:
         pygame.draw.line(surface, GOLD, [WIDTH * 1/6, y], [WIDTH * 1/6, y + length], 5)
 
-def drawScreen():
+
+def drawDirectionHeart(x, y, amount):
+    """
+    Draws the hearts on the left side of the screen
+
+    Parameters:
+    -----------
+    x : int
+        The x-coordinate of the top left of the heart.
+    y : int
+        The y-coordinate of the top left of the heart.
+    amount : int
+        The number of hearts to draw.
+
+    Returns:
+    --------
+    None
+    """
+
+    for i in range(amount):
+        surface.blit(heart, (x+i*xu, y))
+
+
+def drawDirections():
+    """
+    Draws the directions on the left side of the screen
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+
     #Directions
     pygame.draw.rect(surface, BROWN, (0, 0, WIDTH * 1/3, HEIGHT))
     pygame.draw.line(surface, GOLD, (WIDTH * 1/3, HEIGHT//2), (WIDTH, HEIGHT//2), 5)
@@ -65,30 +186,112 @@ def drawScreen():
 
     drawDirectionLine(12*yu)
 
-    surface.blit(pygame.transform.scale(plague, (65, 65)), (0, 13*yu)) #draw plague image
-    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 15, 12*xu, 15*yu, GOLD)
+    surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13*yu)) #draw plague image
+    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 15, 10*xu, 14*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(slowtime, (65, 65)), (0, 17*yu)) #draw slowtime image
-    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 15, 11.6*xu, 19*yu, GOLD)
+    surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15*yu)) #draw slowtime image
+    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 15, 10*xu, 16*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(shield, (65, 65)), (0, 22*yu)) #draw shield image
-    show_message("Shield for 3 seconds", "Consolas", 15, 7.5*xu, 24*yu, GOLD)
+    surface.blit(pygame.transform.scale(shield, (30, 30)), (0, 17.5*yu)) #draw shield image
+    show_message("Shield for 3 seconds", "Consolas", 15, 6*xu, 18.5*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(ammoregen, (65, 65)), (0, 27*yu)) #draw ammoregen image
-    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 15, 12*xu, 29*yu, GOLD)
+    surface.blit(pygame.transform.scale(ammoregen, (30, 30)), (0, 20*yu)) #draw ammoregen image
+    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 15, 10*xu, 21*yu, GOLD)
 
-    show_message("Powerups spawn below the half way line", "Consolas", 15, 10*xu, 33*yu, GOLD)
+    show_message("Powerups spawn below the half way line", "Consolas", 15, 10*xu, 23*yu, GOLD)
 
-    drawDirectionLine(35*yu)
-    drawDirectionLine(35*yu, False, 8*yu)
-    drawDirectionLine(43*yu)
-    drawDirectionLine(39*yu)
+    drawDirectionLine(25*yu)
+    drawDirectionLine(25*yu, False, 8*yu)
+    drawDirectionLine(29*yu)
+    drawDirectionLine(33*yu)
 
-    drawDirectionEnemy(5, 36*yu, 'easy')
-    drawDirectionEnemy(5, 40*yu, 'medium')
-    drawDirectionEnemy(10.8*xu, 36*yu, 'hard')
-    drawDirectionEnemy(10.8*xu, 40*yu, 'insane')
+    drawDirectionEnemy(5, 26*yu, 'easy')
+    drawDirectionEnemy(5, 30*yu, 'medium')
+    drawDirectionEnemy(10.8*xu, 26*yu, 'hard')
+    drawDirectionEnemy(10.8*xu, 30*yu, 'insane')
 
+    show_message("Easy", "Consolas", 20, 4*xu, 27*yu, GOLD)
+    show_message("Medium", "Consolas", 20, 4*xu, 31*yu, GOLD)
+    show_message("Hard", "Consolas", 20, 14*xu, 27*yu, GOLD)
+    show_message("Insane", "Consolas", 20, 14*xu, 31*yu, GOLD)
+
+    drawDirectionHeart(6*xu, 26.3*yu, 1)
+    drawDirectionHeart(6*xu, 30.5*yu, 2)
+    drawDirectionHeart(16*xu, 26.3*yu, 3)
+    drawDirectionHeart(16*xu, 30.5*yu, 4)
+
+    #Will do the attirubtes later
+    surface.blit(pygame.transform.scale(rotation, (45, 45)), (5, 33.7*yu))
+    show_message("Rotation & Speed", "Consolas", 15, 6*xu, 35*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(dodger, (40, 40)), (5, 37*yu))
+    surface.blit(pygame.transform.scale(dash, (40, 40)), (35, 37*yu))
+    show_message("Can blow air out to dodge bullets", "Consolas", 15, 10*xu, 38.5*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(bumper, (60, 15)), (5, 41*yu))
+    show_message("Gains speed when hitting walls", "Consolas", 15, 9.5*xu, 41.5*yu, GOLD)
+
+    surface.blit(pygame.transform.scale(teleport, (40, 40)), (5, 43*yu))
+    show_message("Teleport to a random location behind themself", "Consolas", 15, 11*xu, 44.5*yu, GOLD)
+
+    #Powerups:
+    drawDirectionLine(47*yu)
+    show_message("Powerups:", "Consolas", 40, 10*xu, 49*yu, GOLD)
+    drawDirectionLine(51*yu)
+    drawDirectionLine(51*yu, False, 11*yu)
+    drawDirectionLine(57*yu)
+
+    show_message("1", "Consolas", 30, 9.5*xu, 52.5*yu, GOLD)
+    show_message("2", "Consolas", 30, 20*xu, 52.5*yu, GOLD)
+    show_message("3", "Consolas", 30, 9.5*xu, 58.5*yu, GOLD)
+    show_message("4", "Consolas", 30, 20*xu, 58.5*yu, GOLD)
+
+
+def drawDispensers(x):
+    """
+    Draws the dispensers on the screen
+
+    Parameters:
+    -----------
+    x : int
+        The x-coordinate of the top left of the dispenser.
+
+    Returns:
+    --------
+    None
+    """
+
+    pygame.draw.rect(surface, BLACK, (x, 0, xu, 2*yu))
+    pygame.draw.rect(surface, BLACK, (x-xu, 2*yu, 3*xu, 2*yu), 0)
+    pygame.draw.rect(surface, BLACK, (x-2*xu, 4*yu, 5*xu, 4*yu), 0)
+
+
+def drawScreen():
+    """
+    Draws the screen with all the elements
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+
+    drawDirections()
+
+    #Draw Pause Button
+    pause = pygame.Rect(58*xu, 0, 4*xu, 4*xu)
+    pygame.draw.rect(surface, BROWN, pause, 0)
+    pygame.draw.rect(surface, GOLD, [58.5*xu, 0.7*yu, xu, 3*xu], 0)
+    pygame.draw.rect(surface, GOLD, [60.5*xu, 0.7*yu, xu, 3*xu], 0)
+
+    #Draw Dispensers
+    drawDispensers(25*xu)
+    drawDispensers(34*xu)
+    drawDispensers(43*xu)
+    drawDispensers(52*xu)
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
@@ -138,13 +341,25 @@ def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
 
 
 def main():
+    """
+    Where all the action happens
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+
     while True:
         for event in pygame.event.get():
             if ( event.type == pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)): #end game
                 pygame.quit()
                 sys.exit()
 
-        surface.fill(WHITE)
+        surface.fill(BLUE)
         drawScreen()
         pygame.display.update()
 
