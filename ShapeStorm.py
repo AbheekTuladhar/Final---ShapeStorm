@@ -7,7 +7,9 @@ with numerous abilities and shapes while collecting power ups to survive and mak
 """
 
 import pygame, sys
+
 pygame.init()
+pygame.mixer.init()
 
 WIDTH=1300
 HEIGHT=WIDTH*2/3
@@ -41,7 +43,23 @@ dash = pygame.image.load("images/dash.png").convert_alpha()
 rotation = pygame.image.load("images/rotation.png").convert_alpha()
 bumper = pygame.image.load("images/bumper.png").convert_alpha()
 teleport = pygame.image.load("images/teleport.png").convert_alpha()
+player = pygame.image.load("images/Player.png").convert_alpha()
+player_x_scale = 80
+player = pygame.transform.scale(player, (player_x_scale, player_x_scale*1.25))
 
+#Sounds
+music = pygame.mixer.Sound("Audio/Music.mp3")
+shot = pygame.mixer.Sound("Audio/shot.wav")
+no_ammo = pygame.mixer.Sound("Audio/no_ammo.mp3")
+gun_cock = pygame.mixer.Sound("Audio/gun_cock.wav")
+
+music.play(-1)
+
+#Bullet constants
+BULLET_WIDTH = 10
+BULLET_HEIGHT = 20
+BULLET_SPEED = 20
+BULLET_COOLDOWN_TIME = 0.8
 
 def drawDirectionEnemy(x, y, level):
     """
@@ -198,7 +216,7 @@ def drawDirections():
     surface.blit(pygame.transform.scale(ammoregen, (30, 30)), (0, 20*yu)) #draw ammoregen image
     show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 15, 10*xu, 21*yu, GOLD)
 
-    show_message("Powerups spawn below the half way line", "Consolas", 15, 10*xu, 23*yu, GOLD)
+    show_message("Powerups spawn below the line. Shoot them to collect", "Consolas", 15, 10.2*xu, 24*yu, GOLD)
 
     drawDirectionLine(25*yu)
     drawDirectionLine(25*yu, False, 8*yu)
@@ -266,13 +284,16 @@ def drawDispensers(x):
     pygame.draw.rect(surface, BLACK, (x-2*xu, 4*yu, 5*xu, 4*yu), 0)
 
 
-def drawScreen():
+def drawScreen(x, current_bullets):
     """
     Draws the screen with all the elements
 
     Parameters:
     -----------
-    None
+    x : int
+        The x-coordinate of the player
+    current_bullets : list
+        The list of current bullets on the screen
 
     Returns:
     --------
@@ -292,6 +313,13 @@ def drawScreen():
     drawDispensers(34*xu)
     drawDispensers(43*xu)
     drawDispensers(52*xu)
+
+    #Draw Player:
+    surface.blit(player, (x, HEIGHT - 8*yu)) #draw player image
+
+    #Draw Bullets:
+    for bullet in current_bullets:
+        pygame.draw.rect(surface, bullet['color'], (bullet['x'], bullet['y'], bullet['width'], bullet['height']))
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
@@ -352,15 +380,67 @@ def main():
     --------
     None
     """
+    x = 40*xu
+    leftwall = 21*xu
+    rightwall = WIDTH - player.get_width() - xu
+    bullets = []
+    last_shot_time = 0
+    cock_done = False
 
     while True:
+        keys = pygame.key.get_pressed()
+        current_time = pygame.time.get_ticks()
         for event in pygame.event.get():
             if ( event.type == pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)): #end game
                 pygame.quit()
                 sys.exit()
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000:
+                        shot.play()
+                        cock_done = False # Reset: gun has fired, so it's not "cocked" for the next shot yet
+
+                        #Create a new bullet originating from the player's cannon
+                        bullet_x = x + player.get_width() // 2 - BULLET_WIDTH // 2
+                        bullet_y = HEIGHT - 8*yu
+
+                        new_bullet = {
+                            'x': bullet_x,
+                            'y': bullet_y,
+                            'width': BULLET_WIDTH,
+                            'height': BULLET_HEIGHT,
+                            'speed': BULLET_SPEED,
+                            'color': YELLOW
+                        }
+
+                        bullets.append(new_bullet)
+                        last_shot_time = current_time #update last shot time
+
+                    else:
+                        no_ammo.play()
+
+        if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000 and not cock_done:
+            gun_cock.play()
+            cock_done = True
+
+        #Movement
+        if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and x > leftwall:
+            x -= 25
+        if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and x < rightwall:
+            x += 25
+
         surface.fill(BLUE)
-        drawScreen()
+        drawScreen(x, bullets)
+
+        #Move bullets
+        active_bullets = []
+        for bullet in bullets:
+            bullet['y'] -= bullet['speed']
+            if bullet['y'] + bullet['height'] > 0: #If bullet is still on screen
+                active_bullets.append(bullet)
+        bullets = active_bullets
+
         pygame.display.update()
 
 main()
