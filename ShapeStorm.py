@@ -6,7 +6,7 @@ Description: A game where you shoot down enemy shapes that fall from the sky
 with numerous abilities and shapes while collecting power ups to survive and make it back to your home planet.
 """
 
-import pygame, sys
+import pygame, sys, random
 
 pygame.init()
 pygame.mixer.init()
@@ -47,6 +47,8 @@ player = pygame.image.load("images/Player.png").convert_alpha()
 player_x_scale = 80
 player = pygame.transform.scale(player, (player_x_scale, player_x_scale*1.25))
 
+POWERUPS = [plague, slowtime, shield, ammoregen]
+
 #Sounds
 music = pygame.mixer.Sound("Audio/Music.mp3")
 shot = pygame.mixer.Sound("Audio/shot.wav")
@@ -60,6 +62,23 @@ BULLET_WIDTH = 10
 BULLET_HEIGHT = 20
 BULLET_SPEED = 20
 BULLET_COOLDOWN_TIME = 0.8
+
+def drawPlay():
+    """
+    Draws the play button
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+
+    play = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
+    pygame.draw.rect(surface, BROWN, play, 0)
+    pygame.draw.polygon(surface, GOLD, [(39*xu, 26*yu), (39*xu, 37*yu), (46*xu, 31*yu)])
 
 def drawDirectionEnemy(x, y, level):
     """
@@ -284,7 +303,15 @@ def drawDispensers(x):
     pygame.draw.rect(surface, BLACK, (x-2*xu, 4*yu, 5*xu, 4*yu), 0)
 
 
-def drawScreen(x, current_bullets):
+def render_powerups(powerup_list):
+    """
+    Draws all powerups currently in the powerup_list onto the surface.
+    """
+    for powerup_data in powerup_list:
+        surface.blit(powerup_data['image'], (powerup_data['x'], powerup_data['y']))
+
+
+def drawScreen(x, current_bullets, powerup_list):
     """
     Draws the screen with all the elements
 
@@ -294,6 +321,8 @@ def drawScreen(x, current_bullets):
         The x-coordinate of the player
     current_bullets : list
         The list of current bullets on the screen
+    powerup_list : list
+        The list of active powerups on the screen.
 
     Returns:
     --------
@@ -320,6 +349,10 @@ def drawScreen(x, current_bullets):
     #Draw Bullets:
     for bullet in current_bullets:
         pygame.draw.rect(surface, bullet['color'], (bullet['x'], bullet['y'], bullet['width'], bullet['height']))
+
+    #Draw Powerups:
+    render_powerups(powerup_list)
+
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
@@ -381,11 +414,17 @@ def main():
     None
     """
     x = 40*xu
-    leftwall = 21*xu
-    rightwall = WIDTH - player.get_width() - xu
+    leftwall = WIDTH//3 + 10
+    rightwall = WIDTH - player.get_width() - 5
     bullets = []
     last_shot_time = 0
     cock_done = False
+    paused = False
+    speed = 15
+    powerup_list = []
+
+    powerup_cooldown = 5
+    last_powerup_spawn_time = 0
 
     while True:
         keys = pygame.key.get_pressed()
@@ -399,7 +438,7 @@ def main():
                 if event.key == pygame.K_SPACE:
                     if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000:
                         shot.play()
-                        cock_done = False # Reset: gun has fired, so it's not "cocked" for the next shot yet
+                        cock_done = False
 
                         #Create a new bullet originating from the player's cannon
                         bullet_x = x + player.get_width() // 2 - BULLET_WIDTH // 2
@@ -426,12 +465,23 @@ def main():
 
         #Movement
         if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and x > leftwall:
-            x -= 25
+            x -= speed
         if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and x < rightwall:
-            x += 25
+            x += speed
+
+        #Powerup Spawning
+        if current_time - last_powerup_spawn_time > powerup_cooldown * 1000:
+            powerup_x = random.randint(int(WIDTH//3 + 40), int(WIDTH - 2*xu - (2*xu))) #Make sure x allows full image width (2*xu)
+            powerup_y = random.randint(int(HEIGHT//2), int(HEIGHT - 13*yu - (2*xu))) #Make sure y allows full image height (2*xu)
+
+            powerup = random.choice(POWERUPS)
+            powerup = pygame.transform.scale(powerup, (2*xu, 2*xu))
+
+            powerup_list.append({'image': powerup, 'x': powerup_x, 'y': powerup_y})
+            last_powerup_spawn_time = current_time
 
         surface.fill(BLUE)
-        drawScreen(x, bullets)
+        drawScreen(x, bullets, powerup_list)
 
         #Move bullets
         active_bullets = []
