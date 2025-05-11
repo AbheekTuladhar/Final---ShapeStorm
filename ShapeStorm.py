@@ -6,12 +6,31 @@ Description: A game where you shoot down enemy shapes that fall from the sky
 with numerous abilities and shapes while collecting power ups to survive and make it back to your home planet.
 """
 
+"""
+MILESTONE LIST:
+1. Create the directions screen ✅
+2. Create the background with the dispensers, player, and play button ✅
+3. Make the player move left and right ✅
+4. Make the player shoot bullets ✅
+5. Make the bullets move up the screen ✅
+6. Add unfunctional powerups to the screen every VARIABLE seconds ✅
+7. Make bullets disappear when they hit a powerup ✅
+8. Make it so that powerup goes into the powerups section of the directions screen ✅
+9. Make it so hitting 1, 2, 3, or 4 deletes the powerup from the directions
+10. Make functional powerups
+11. Make random enemies spawn and move down the screen from the dispensers
+12. Make it so that the player can shoot the enemies and they disappear based on their color
+13. Make it so that the enemies bounce off of the walls and other enemies
+14. Add random powerups to the enemies based on their color
+15. Make everything based on levels and have it increase after x many kills
+"""
+
 import pygame, sys, random
 
 pygame.init()
 pygame.mixer.init()
 
-WIDTH=1300
+WIDTH=1000
 HEIGHT=WIDTH*2/3
 
 size=(WIDTH, HEIGHT)
@@ -47,7 +66,7 @@ player = pygame.image.load("images/Player.png").convert_alpha()
 player_x_scale = 80
 player = pygame.transform.scale(player, (player_x_scale, player_x_scale*1.25))
 
-POWERUPS = [plague, slowtime, shield, ammoregen]
+POWERUPS = [plague, shield, shield, slowtime, slowtime, slowtime, ammoregen, ammoregen, ammoregen, ammoregen] #Certain powerups are more common then others
 
 #Sounds
 music = pygame.mixer.Sound("Audio/Music.mp3")
@@ -62,6 +81,7 @@ BULLET_WIDTH = 10
 BULLET_HEIGHT = 20
 BULLET_SPEED = 20
 BULLET_COOLDOWN_TIME = 0.8
+
 
 def drawPlay():
     """
@@ -79,6 +99,7 @@ def drawPlay():
     play = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
     pygame.draw.rect(surface, BROWN, play, 0)
     pygame.draw.polygon(surface, GOLD, [(39*xu, 26*yu), (39*xu, 37*yu), (46*xu, 31*yu)])
+
 
 def drawDirectionEnemy(x, y, level):
     """
@@ -216,26 +237,26 @@ def drawDirections():
     pygame.draw.line(surface, GOLD, (WIDTH * 1/3, HEIGHT//2), (WIDTH, HEIGHT//2), 5)
     drawDirectionLine(4*yu)
 
-    show_message("Directions:", "Consolas", 40, 10*xu, 2* yu, GOLD)
-    show_message("<-- --> : Movement", "Consolas", 30, 10*xu, 6*yu, GOLD)
-    show_message(" A   D  : Movement", "Consolas", 30, 10*xu, 8*yu, GOLD)
-    show_message("Space  : Shoot", "Consolas", 30, 9.2*xu, 10*yu, GOLD) #9.2 to allign the :
+    show_message("Directions:", "Consolas", 30, 10*xu, 2* yu, GOLD)
+    show_message("<-- --> : Movement", "Consolas", 20, 10*xu, 6*yu, GOLD)
+    show_message(" A   D  : Movement", "Consolas", 20, 10*xu, 8*yu, GOLD)
+    show_message("Space  : Shoot", "Consolas", 20, 9.2*xu, 10*yu, GOLD) #9.2 to allign the :
 
     drawDirectionLine(12*yu)
 
     surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13*yu)) #draw plague image
-    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 15, 10*xu, 14*yu, GOLD)
+    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 10, 10.5*xu, 14.5*yu, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15*yu)) #draw slowtime image
-    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 15, 10*xu, 16*yu, GOLD)
+    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 10, 10*xu, 16.5*yu, GOLD)
 
     surface.blit(pygame.transform.scale(shield, (30, 30)), (0, 17.5*yu)) #draw shield image
-    show_message("Shield for 3 seconds", "Consolas", 15, 6*xu, 18.5*yu, GOLD)
+    show_message("Shield for 3 seconds", "Consolas", 10, 6*xu, 19*yu, GOLD)
 
     surface.blit(pygame.transform.scale(ammoregen, (30, 30)), (0, 20*yu)) #draw ammoregen image
-    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 15, 10*xu, 21*yu, GOLD)
+    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 10, 10*xu, 21.5*yu, GOLD)
 
-    show_message("Powerups spawn below the line. Shoot them to collect", "Consolas", 15, 10.2*xu, 24*yu, GOLD)
+    show_message("Powerups spawn below the line. Shoot them to collect", "Consolas", 10, 10.2*xu, 24*yu, GOLD)
 
     drawDirectionLine(25*yu)
     drawDirectionLine(25*yu, False, 8*yu)
@@ -247,10 +268,10 @@ def drawDirections():
     drawDirectionEnemy(10.8*xu, 26*yu, 'hard')
     drawDirectionEnemy(10.8*xu, 30*yu, 'insane')
 
-    show_message("Easy", "Consolas", 20, 4*xu, 27*yu, GOLD)
-    show_message("Medium", "Consolas", 20, 4*xu, 31*yu, GOLD)
-    show_message("Hard", "Consolas", 20, 14*xu, 27*yu, GOLD)
-    show_message("Insane", "Consolas", 20, 14*xu, 31*yu, GOLD)
+    show_message("Easy", "Consolas", 15, 4*xu, 27*yu, GOLD)
+    show_message("Medium", "Consolas", 15, 4*xu, 31*yu, GOLD)
+    show_message("Hard", "Consolas", 15, 14*xu, 27*yu, GOLD)
+    show_message("Insane", "Consolas", 15, 14*xu, 31*yu, GOLD)
 
     drawDirectionHeart(6*xu, 26.3*yu, 1)
     drawDirectionHeart(6*xu, 30.5*yu, 2)
@@ -258,30 +279,30 @@ def drawDirections():
     drawDirectionHeart(16*xu, 30.5*yu, 4)
 
     #Will do the attirubtes later
-    surface.blit(pygame.transform.scale(rotation, (45, 45)), (5, 33.7*yu))
-    show_message("Rotation & Speed", "Consolas", 15, 6*xu, 35*yu, GOLD)
+    surface.blit(pygame.transform.scale(rotation, (35, 35)), (5, 33.7*yu))
+    show_message("Rotation & Speed", "Consolas", 10, 6*xu, 35*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(dodger, (40, 40)), (5, 37*yu))
-    surface.blit(pygame.transform.scale(dash, (40, 40)), (35, 37*yu))
-    show_message("Can blow air out to dodge bullets", "Consolas", 15, 10*xu, 38.5*yu, GOLD)
+    surface.blit(pygame.transform.scale(dodger, (30, 30)), (5, 37*yu))
+    surface.blit(pygame.transform.scale(dash, (30, 30)), (35, 37*yu))
+    show_message("Can blow air out to dodge bullets", "Consolas", 10, 10*xu, 38.5*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(bumper, (60, 15)), (5, 41*yu))
-    show_message("Gains speed when hitting walls", "Consolas", 15, 9.5*xu, 41.5*yu, GOLD)
+    surface.blit(pygame.transform.scale(bumper, (40, 10)), (5, 41*yu))
+    show_message("Gains speed when hitting walls", "Consolas", 10, 9.5*xu, 41.5*yu, GOLD)
 
-    surface.blit(pygame.transform.scale(teleport, (40, 40)), (5, 43*yu))
-    show_message("Teleport to a random location behind themself", "Consolas", 15, 11*xu, 44.5*yu, GOLD)
+    surface.blit(pygame.transform.scale(teleport, (35, 35)), (5, 43*yu))
+    show_message("Teleport to a random location behind themself", "Consolas", 10, 11*xu, 44.5*yu, GOLD)
 
     #Powerups:
     drawDirectionLine(47*yu)
     show_message("Powerups:", "Consolas", 40, 10*xu, 49*yu, GOLD)
     drawDirectionLine(51*yu)
     drawDirectionLine(51*yu, False, 11*yu)
-    drawDirectionLine(57*yu)
+    drawDirectionLine(56*yu)
 
     show_message("1", "Consolas", 30, 9.5*xu, 52.5*yu, GOLD)
     show_message("2", "Consolas", 30, 20*xu, 52.5*yu, GOLD)
-    show_message("3", "Consolas", 30, 9.5*xu, 58.5*yu, GOLD)
-    show_message("4", "Consolas", 30, 20*xu, 58.5*yu, GOLD)
+    show_message("3", "Consolas", 30, 9.5*xu, 57.5*yu, GOLD)
+    show_message("4", "Consolas", 30, 20*xu, 57.5*yu, GOLD)
 
 
 def drawDispensers(x):
@@ -303,15 +324,25 @@ def drawDispensers(x):
     pygame.draw.rect(surface, BLACK, (x-2*xu, 4*yu, 5*xu, 4*yu), 0)
 
 
-def render_powerups(powerup_list):
+def draw_powerups(powerup_list):
     """
     Draws all powerups currently in the powerup_list onto the surface.
+
+    Parameters:
+    -----------
+    powerup_list : list
+        The list of powerups to be drawn.
+
+    Returns:
+    --------
+    None
     """
+
     for powerup_data in powerup_list:
         surface.blit(powerup_data['image'], (powerup_data['x'], powerup_data['y']))
 
 
-def drawScreen(x, current_bullets, powerup_list):
+def drawScreen(x, current_bullets, powerup_list, collected_powerup_list):
     """
     Draws the screen with all the elements
 
@@ -323,6 +354,8 @@ def drawScreen(x, current_bullets, powerup_list):
         The list of current bullets on the screen
     powerup_list : list
         The list of active powerups on the screen.
+    collected_powerup_list : list
+        The list of collected powerups.
 
     Returns:
     --------
@@ -332,10 +365,10 @@ def drawScreen(x, current_bullets, powerup_list):
     drawDirections()
 
     #Draw Pause Button
-    pause = pygame.Rect(58*xu, 0, 4*xu, 4*xu)
+    pause = pygame.Rect(58.5*xu, 0, 4*xu, 4*xu)
     pygame.draw.rect(surface, BROWN, pause, 0)
-    pygame.draw.rect(surface, GOLD, [58.5*xu, 0.7*yu, xu, 3*xu], 0)
-    pygame.draw.rect(surface, GOLD, [60.5*xu, 0.7*yu, xu, 3*xu], 0)
+    pygame.draw.rect(surface, GOLD, [59*xu, 0.7*yu, xu, 3*xu], 0)
+    pygame.draw.rect(surface, GOLD, [61*xu, 0.7*yu, xu, 3*xu], 0)
 
     #Draw Dispensers
     drawDispensers(25*xu)
@@ -344,14 +377,29 @@ def drawScreen(x, current_bullets, powerup_list):
     drawDispensers(52*xu)
 
     #Draw Player:
-    surface.blit(player, (x, HEIGHT - 8*yu)) #draw player image
+    surface.blit(player, (x, HEIGHT - 10*yu)) #draw player image
 
     #Draw Bullets:
     for bullet in current_bullets:
         pygame.draw.rect(surface, bullet['color'], (bullet['x'], bullet['y'], bullet['width'], bullet['height']))
 
     #Draw Powerups:
-    render_powerups(powerup_list)
+    draw_powerups(powerup_list)
+
+    #Draw the collected powerups
+    for powerup in collected_powerup_list:
+        powerup['image'] = pygame.transform.scale(powerup['image'], (3*xu, 3*xu))
+
+        if collected_powerup_list.index(powerup) == 0:
+            surface.blit(powerup['image'], (3.5*xu, HEIGHT - 9.5*yu))
+        elif collected_powerup_list.index(powerup) == 1:
+            surface.blit(powerup['image'], (14*xu, HEIGHT - 9.5*yu))
+        elif collected_powerup_list.index(powerup) == 2:
+            surface.blit(powerup['image'], (3.5*xu, HEIGHT - 4.5*yu))
+        elif collected_powerup_list.index(powerup) == 3:
+            surface.blit(powerup['image'], (14*xu, HEIGHT - 4.5*yu))
+
+    return pause
 
 
 
@@ -419,9 +467,9 @@ def main():
     bullets = []
     last_shot_time = 0
     cock_done = False
-    paused = False
     speed = 15
     powerup_list = []
+    collected_powerups = []
 
     powerup_cooldown = 5
     last_powerup_spawn_time = 0
@@ -429,6 +477,7 @@ def main():
     while True:
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()
+
         for event in pygame.event.get():
             if ( event.type == pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)): #end game
                 pygame.quit()
@@ -480,9 +529,6 @@ def main():
             powerup_list.append({'image': powerup, 'x': powerup_x, 'y': powerup_y})
             last_powerup_spawn_time = current_time
 
-        surface.fill(BLUE)
-        drawScreen(x, bullets, powerup_list)
-
         #Move bullets
         active_bullets = []
         for bullet in bullets:
@@ -490,6 +536,25 @@ def main():
             if bullet['y'] + bullet['height'] > 0: #If bullet is still on screen
                 active_bullets.append(bullet)
         bullets = active_bullets
+
+        #Delete powerups that hit bullets
+        for powerup in powerup_list:
+            for bullet in bullets:
+                if (powerup['x'] < bullet['x'] < powerup['x'] + 3*xu) and (powerup['y'] < bullet['y'] < powerup['y'] + 3*xu): #Basically, it checks if the bullet is within the powerup's x and y coordinates.
+                    #The 2*xu is there because that is the width and height of the powerups + an xu because the hitbox is a little smaller than the image
+                    powerup_list.remove(powerup)
+
+                    if len(collected_powerups) < 4: #Make sure you don't have more than 4 powerups ever
+                        collected_powerups.append(powerup)
+                    else:
+                        collected_powerups[random.randint(0, len(collected_powerups) - 1)] = powerup
+
+                    bullets.remove(bullet)
+                    #break
+
+
+        surface.fill(BLUE)
+        drawScreen(x, bullets, powerup_list, collected_powerups)
 
         pygame.display.update()
 
