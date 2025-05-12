@@ -16,13 +16,16 @@ MILESTONE LIST:
 6. Add unfunctional powerups to the screen every VARIABLE seconds ✅
 7. Make bullets disappear when they hit a powerup ✅
 8. Make it so that powerup goes into the powerups section of the directions screen ✅
-9. Make it so hitting 1, 2, 3, or 4 deletes the powerup from the directions
-10. Make functional powerups
-11. Make random enemies spawn and move down the screen from the dispensers
-12. Make it so that the player can shoot the enemies and they disappear based on their color
-13. Make it so that the enemies bounce off of the walls and other enemies
-14. Add random powerups to the enemies based on their color
-15. Make everything based on levels and have it increase after x many kills
+9. Make it so hitting 1, 2, 3, or 4 deletes the powerup from the directions screen ✅
+10. Make the pause and play button functional ✅
+11. Make functional powerup for the ammo regen - DUE DATE 5/12 (Gotta study for those keystones)
+12. Make random enemies spawn and move down the screen from the dispensers - DUE DATE 5/14
+13. Make the plague, shield, and slowtime powerups functional since enemies exist now - DUE DATE 5/15
+14. Make it so that the player can shoot the enemies and they disappear based on their color for lives - DUE DATE 5/16
+15. Make it so that there are levels based on how many enemies the user has killed - DUE DATE 5/17
+16. Make it so that the enemies come out of the dispensers at an angle and bounce off of the walls and other enemies - DUE DATE 5/20
+17. Make it so that easier enemies spawn more often at lower levels and harder enemies spawn more often at higher levels - DUE DATE 5/21
+18. Add random powerups to the enemies based on their color - 5/23 (Use the weekend to study for your finals. Good luck from your past self from 5/12)
 """
 
 import pygame, sys, random
@@ -93,12 +96,16 @@ def drawPlay():
 
     Returns:
     --------
-    None
+    play_rect : pygame.Rect
+        The rectangle representing the play button.
     """
 
-    play = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
-    pygame.draw.rect(surface, BROWN, play, 0)
+    play_rect = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
+
+    pygame.draw.rect(surface, BROWN, play_rect, 0)
     pygame.draw.polygon(surface, GOLD, [(39*xu, 26*yu), (39*xu, 37*yu), (46*xu, 31*yu)])
+
+    return play_rect
 
 
 def drawDirectionEnemy(x, y, level):
@@ -399,9 +406,6 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list):
         elif collected_powerup_list.index(powerup) == 3:
             surface.blit(powerup['image'], (14*xu, HEIGHT - 4.5*yu))
 
-    return pause
-
-
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
     """
@@ -449,6 +453,30 @@ def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
     return text_bounds #bounding box returned for collision detection
 
 
+def powerup_effect(powerup):
+    """
+    Applies the effect of the powerup to the player.
+
+    Parameters:
+    -----------
+    powerup : str
+        The type of powerup to apply.
+
+    Returns:
+    --------
+    None
+    """
+
+    if powerup == 'plague':
+        pass #TODO: Implement plague effect
+    elif powerup == 'shield':
+        pass #TODO: Implement shield effect
+    elif powerup == 'slowtime':
+        pass #TODO: Implement slowtime effect
+    elif powerup == 'ammoregen':
+        pass #TODO: Implement ammoregen effect
+
+
 def main():
     """
     Where all the action happens
@@ -469,92 +497,152 @@ def main():
     cock_done = False
     speed = 15
     powerup_list = []
+    paused = False
     collected_powerups = []
 
     powerup_cooldown = 5
     last_powerup_spawn_time = 0
 
+    #I didn't copy code from Gemini AI, however, I was stuck on how to adjust the current_time with the pausing
+    #It gave me the idea of tracking how much time was spent in pause mode
+    time_at_pause_start = 0 #To store timestamp when pause begins so pausing doesn't continue the ticks
+
+    #Hitboxes... again
+    pause_button_hitbox = pygame.Rect(58.5*xu, 0, 4*xu, 4*xu)
+    play_button_hitbox = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
+
     while True:
-        keys = pygame.key.get_pressed()
-        current_time = pygame.time.get_ticks()
+        mouse_pos = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
-            if ( event.type == pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)): #end game
+            if (event.type == pygame.QUIT or
+                    (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000:
-                        shot.play()
-                        cock_done = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if not paused: #If game is running, check for pause click
+                    if pause_button_hitbox.collidepoint(mouse_pos):
+                        paused = True
+                        time_at_pause_start = pygame.time.get_ticks() #Record time when pausing
+                else: #If game is paused, check for the user hitting the play button
+                    if play_button_hitbox.collidepoint(mouse_pos):
+                        paused = False
+                        #Adjust all the timing variables to account for the time spent paused
+                        if time_at_pause_start > 0: #Ensure we have a valid pause start time
+                            pause_duration = pygame.time.get_ticks() - time_at_pause_start
+                            last_shot_time += pause_duration
+                            last_powerup_spawn_time += pause_duration
 
-                        #Create a new bullet originating from the player's cannon
-                        bullet_x = x + player.get_width() // 2 - BULLET_WIDTH // 2
-                        bullet_y = HEIGHT - 8*yu
+                            time_at_pause_start = 0 #Reset for the next pause
 
-                        new_bullet = {
-                            'x': bullet_x,
-                            'y': bullet_y,
-                            'width': BULLET_WIDTH,
-                            'height': BULLET_HEIGHT,
-                            'speed': BULLET_SPEED,
-                            'color': YELLOW
-                        }
+            #If not paused, continue as normal
+            if not paused:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        current_time = pygame.time.get_ticks() #Get current_time when needed
+                        if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000:
+                            shot.play()
+                            cock_done = False
 
-                        bullets.append(new_bullet)
-                        last_shot_time = current_time #update last shot time
+                            #Create a new bullet originating from the player's cannon
+                            bullet_x = x + player.get_width() // 2 - BULLET_WIDTH // 2
+                            bullet_y = HEIGHT - 8*yu
 
-                    else:
-                        no_ammo.play()
+                            #Attribute idea with dictionaries was given to me by a friend
+                            new_bullet = {
+                                'x': bullet_x,
+                                'y': bullet_y,
+                                'width': BULLET_WIDTH,
+                                'height': BULLET_HEIGHT,
+                                'speed': BULLET_SPEED,
+                                'color': YELLOW
+                            }
 
-        if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000 and not cock_done:
-            gun_cock.play()
-            cock_done = True
+                            bullets.append(new_bullet)
+                            last_shot_time = current_time #update last shot time
+                        else:
+                            no_ammo.play()
 
-        #Movement
-        if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and x > leftwall:
-            x -= speed
-        if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and x < rightwall:
-            x += speed
+                    if event.key == pygame.K_1 and len(collected_powerups) >= 1:
+                        powerup_effect(collected_powerups[0])
+                        collected_powerups.remove(collected_powerups[0])
+                    if event.key == pygame.K_2 and len(collected_powerups) >= 2:
+                        powerup_effect(collected_powerups[1])
+                        collected_powerups.remove(collected_powerups[1])
+                    if event.key == pygame.K_3 and len(collected_powerups) >= 3:
+                        powerup_effect(collected_powerups[2])
+                        collected_powerups.remove(collected_powerups[2])
+                    if event.key == pygame.K_4 and len(collected_powerups) >= 4:
+                        powerup_effect(collected_powerups[3])
+                        collected_powerups.remove(collected_powerups[3])
 
-        #Powerup Spawning
-        if current_time - last_powerup_spawn_time > powerup_cooldown * 1000:
-            powerup_x = random.randint(int(WIDTH//3 + 40), int(WIDTH - 2*xu - (2*xu))) #Make sure x allows full image width (2*xu)
-            powerup_y = random.randint(int(HEIGHT//2), int(HEIGHT - 13*yu - (2*xu))) #Make sure y allows full image height (2*xu)
+        #Game logic updates only if not paused
+        if not paused:
+            keys = pygame.key.get_pressed() #For continuous input like movement
+            current_time = pygame.time.get_ticks() #For time-based logic
 
-            powerup = random.choice(POWERUPS)
-            powerup = pygame.transform.scale(powerup, (2*xu, 2*xu))
+            if current_time - last_shot_time > BULLET_COOLDOWN_TIME * 1000 and not cock_done:
+                gun_cock.play()
+                cock_done = True
 
-            powerup_list.append({'image': powerup, 'x': powerup_x, 'y': powerup_y})
-            last_powerup_spawn_time = current_time
+            #Movement
+            if (keys[pygame.K_a] or keys[pygame.K_LEFT]) and x > leftwall:
+                x -= speed
+            if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and x < rightwall:
+                x += speed
 
-        #Move bullets
-        active_bullets = []
-        for bullet in bullets:
-            bullet['y'] -= bullet['speed']
-            if bullet['y'] + bullet['height'] > 0: #If bullet is still on screen
-                active_bullets.append(bullet)
-        bullets = active_bullets
+            #Powerup Spawning
+            if current_time - last_powerup_spawn_time > powerup_cooldown * 1000:
+                powerup_x = random.randint(int(WIDTH//3 + 40), int(WIDTH - 2*xu - (2*xu)))
+                powerup_y = random.randint(int(HEIGHT//2), int(HEIGHT - 13*yu - (2*xu)))
 
-        #Delete powerups that hit bullets
-        for powerup in powerup_list:
-            for bullet in bullets:
-                if (powerup['x'] < bullet['x'] < powerup['x'] + 3*xu) and (powerup['y'] < bullet['y'] < powerup['y'] + 3*xu): #Basically, it checks if the bullet is within the powerup's x and y coordinates.
-                    #The 2*xu is there because that is the width and height of the powerups + an xu because the hitbox is a little smaller than the image
-                    powerup_list.remove(powerup)
+                powerup = pygame.transform.scale(random.choice(POWERUPS), (2*xu, 2*xu))
 
-                    if len(collected_powerups) < 4: #Make sure you don't have more than 4 powerups ever
-                        collected_powerups.append(powerup)
-                    else:
-                        collected_powerups[random.randint(0, len(collected_powerups) - 1)] = powerup
+                powerup_list.append({'image': powerup, 'x': powerup_x, 'y': powerup_y})
+                last_powerup_spawn_time = current_time
 
-                    bullets.remove(bullet)
-                    #break
+            #Move bullets
+            active_bullets = []
+            for bullet in bullets: #Renamed to avoid conflict
+                bullet['y'] -= bullet['speed']
+                if bullet['y'] + bullet['height'] > 0:
+                    active_bullets.append(bullet)
+            bullets = active_bullets
 
+            #Bullet-Powerup Collisions
+            powerups_to_keep = []
+            bullets_after_collision = list(bullets) #Modifyable copy
+
+            for powerup_data in powerup_list:
+                powerup_hit_by_bullet = False
+                for bullet in bullets:
+                    #Create proper rects for collision
+                    powerup_rect = pygame.Rect(powerup_data['x'], powerup_data['y'], 2*xu, 2*xu) #Powerups are 2*xu by 2*xu
+                    bullet_rect = pygame.Rect(bullet['x'], bullet['y'], bullet['width'], bullet['height'])
+
+                    if powerup_rect.colliderect(bullet_rect):
+                        if len(collected_powerups) < 4: #Make sure user doesn't have more than 4 powerups ever
+                            collected_powerups.append(powerup_data) #Add the actual powerup dict
+                        else:
+                            collected_powerups[random.randint(0, len(collected_powerups) - 1)] = powerup_data
+
+                        if bullet in bullets_after_collision: #Bullet is consumed
+                            bullets_after_collision.remove(bullet)
+                        powerup_hit_by_bullet = True
+                        break #Bullet hits one powerup, powerup is collected
+
+                if not powerup_hit_by_bullet:
+                    powerups_to_keep.append(powerup_data)
+
+            powerup_list = powerups_to_keep
+            bullets = bullets_after_collision
 
         surface.fill(BLUE)
         drawScreen(x, bullets, powerup_list, collected_powerups)
+
+        if paused:
+            drawPlay()
 
         pygame.display.update()
 
