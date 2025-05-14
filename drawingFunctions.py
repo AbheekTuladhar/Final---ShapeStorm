@@ -70,7 +70,8 @@ def drawPlay():
 
     return play_rect
 
-def drawDirectionEnemy(x, y, level):
+
+def drawEnemy(x, y, level, size):
     """
     Draws the enemies on the left side of the screen
 
@@ -82,6 +83,8 @@ def drawDirectionEnemy(x, y, level):
         The y-coordinate of the top left of the enemy.
     level : str
         The level of the enemy.
+    size : float
+        The size of the enemy
 
     Returns:
     --------
@@ -89,57 +92,57 @@ def drawDirectionEnemy(x, y, level):
     """
 
     if level == 'easy':
-        pygame.draw.rect(surface, GREEN, (x, y, 1.5*xu, 1.5*xu), 0)
+        pygame.draw.rect(surface, GREEN, (x, y, size*xu, size*xu), 0)
 
         #Eyes
-        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.3*yu), (x + 0.5*xu, y + 1.0*yu), 1)
-        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.3*yu), (x + 1.1*xu, y + 1.0*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * (0.5/1.5))*xu, y + (size * (0.3/1.5))*yu), (x + (size * (0.5/1.5))*xu, y + (size * (1.0/1.5))*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * (1.1/1.5))*xu, y + (size * (0.3/1.5))*yu), (x + (size * (1.1/1.5))*xu, y + (size * (1.0/1.5))*yu), 1)
 
         #Draw Smile
-        pygame.draw.arc(surface, BLACK, (x + 0.3*xu, y + 0.5*yu, xu, xu), 3.28, -0.14, 1)
+        pygame.draw.arc(surface, BLACK, (x + (size * 0.3/1.5)*xu, y + (size * 0.5/1.5)*yu, (size * xu * (1/1.5)), (size * xu * (1/1.5))), 3.28, -0.14, 1)
 
     elif level == 'medium':
-        pygame.draw.rect(surface, YELLOW, (x, y, 1.5*xu, 1.5*xu), 0)
+        pygame.draw.rect(surface, YELLOW, (x, y, size*xu, size*xu), 0)
 
         #Eyes
-        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.3*yu), (x + 0.5*xu, y + 1.0*yu), 1)
-        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.3*yu), (x + 1.1*xu, y + 1.0*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.5/1.5)*xu, y + (size * 0.3/1.5)*yu), (x + (size * 0.5/1.5)*xu, y + (size * 1.0/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 1.1/1.5)*xu, y + (size * 0.3/1.5)*yu), (x + (size * 1.1/1.5)*xu, y + (size * 1.0/1.5)*yu), 1)
 
         #Draw Smile
-        pygame.draw.line(surface, BLACK, (x+0.5*xu, y + 1.5*yu), (x + 1.1*xu, y + 1.5*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.5/1.5)*xu, y + (size * 1.5/1.5)*yu), (x + (size * 1.1/1.5)*xu, y + (size * 1.5/1.5)*yu), 1)
 
         #Draw Eye brows
-        pygame.draw.line(surface, BLACK, (x+0.3*xu, y+0.2*yu), (x+0.7*xu, y+0.2*yu), 1)
-        pygame.draw.line(surface, BLACK, (x+0.9*xu, y+0.2*yu), (x+1.3*xu, y+0.2*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.3/1.5)*xu, y + (size * 0.2/1.5)*yu), (x + (size * 0.7/1.5)*xu, y + (size * 0.2/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.9/1.5)*xu, y + (size * 0.2/1.5)*yu), (x + (size * 1.3/1.5)*xu, y + (size * 0.2/1.5)*yu), 1)
 
     elif level == 'hard':
-        pygame.draw.rect(surface, RED, (x, y, 1.5*xu, 1.5*xu), 0)
+        pygame.draw.rect(surface, RED, (x, y, size*xu, size*xu), 0)
 
         #Eyes
-        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.5*yu), (x + 0.5*xu, y + 1.3*yu), 1)
-        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.5*yu), (x + 1.1*xu, y + 1.3*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.5/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 0.5/1.5)*xu, y + (size * 1.3/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 1.1/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 1.1/1.5)*xu, y + (size * 1.3/1.5)*yu), 1)
 
         #Draw Smile
-        pygame.draw.arc(surface, BLACK, (x + 0.3*xu, y + 0.5*yu, xu, xu), 3.28, -0.14, 1)
+        pygame.draw.arc(surface, BLACK, (x + (size * 0.3/1.5)*xu, y + (size * 0.5/1.5)*yu, (size * xu * (1/1.5)), (size * xu * (1/1.5))), 3.28, -0.14, 1)
 
         #Draw Angry Eye brows
-        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+0.2*xu, y+0.1*yu), 1)
-        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+1.2*xu, y+0.1*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.8/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 0.2/1.5)*xu, y + (size * 0.1/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.8/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 1.2/1.5)*xu, y + (size * 0.1/1.5)*yu), 1)
 
     elif level == 'insane':
-        pygame.draw.rect(surface, PURPLE, (x, y, 1.5*xu, 1.5*xu), 0)
+        pygame.draw.rect(surface, PURPLE, (x, y, size*xu, size*xu), 0)
 
         #Eyes
-        pygame.draw.line(surface, BLACK, (x + 0.5*xu, y + 0.5*yu), (x + 0.5*xu, y + 1.3*yu), 1)
-        pygame.draw.line(surface, BLACK, (x + 1.1*xu, y + 0.5*yu), (x + 1.1*xu, y + 1.3*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.5/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 0.5/1.5)*xu, y + (size * 1.3/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 1.1/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 1.1/1.5)*xu, y + (size * 1.3/1.5)*yu), 1)
 
         #Draw Smile
-        pygame.draw.line(surface, BLACK, (x+0.5*xu, y + 1.6*yu), (x + 1.1*xu, y + 1.5*yu), 1)
-        pygame.draw.arc(surface, BLACK, (x+0.5*xu, y + 0.9*yu, 0.6*xu, 0.8*xu), 3.28, -0.14, 1)
+        pygame.draw.line(surface, BLACK, (x+(size * 0.5/1.5)*xu, y + (size * 1.6/1.5)*yu), (x + (size * 1.1/1.5)*xu, y + (size * 1.5/1.5)*yu), 1)
+        pygame.draw.arc(surface, BLACK, (x + (size * 0.5/1.5)*xu, y + (size * 0.6/1.5)*yu, (size * xu * (0.8/1.5)), (size * xu * (1/1.5))), 3.28, -0.14, 1)
 
         #Draw Angry Eye brows
-        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+0.2*xu, y+0.1*yu), 1)
-        pygame.draw.line(surface, BLACK, (x+0.8*xu, y+0.5*yu), (x+1.2*xu, y+0.1*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.8/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 0.2/1.5)*xu, y + (size * 0.1/1.5)*yu), 1)
+        pygame.draw.line(surface, BLACK, (x + (size * 0.8/1.5)*xu, y + (size * 0.5/1.5)*yu), (x + (size * 1.2/1.5)*xu, y + (size * 0.1/1.5)*yu), 1)
 
 
 def drawDirectionLine(y, horz = True, length = None):
@@ -232,10 +235,10 @@ def drawDirections():
     drawDirectionLine(29*yu)
     drawDirectionLine(33*yu)
 
-    drawDirectionEnemy(5, 26*yu, 'easy')
-    drawDirectionEnemy(5, 30*yu, 'medium')
-    drawDirectionEnemy(10.8*xu, 26*yu, 'hard')
-    drawDirectionEnemy(10.8*xu, 30*yu, 'insane')
+    drawEnemy(5, 26*yu, 'easy', 1.5)
+    drawEnemy(5, 30*yu, 'medium', 1.5)
+    drawEnemy(10.8*xu, 26*yu, 'hard', 1.5)
+    drawEnemy(10.8*xu, 30*yu, 'insane', 1.5)
 
     show_message("Easy", "Consolas", 15, 4*xu, 27*yu, GOLD)
     show_message("Medium", "Consolas", 15, 4*xu, 31*yu, GOLD)
