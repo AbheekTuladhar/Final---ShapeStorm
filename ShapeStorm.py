@@ -1,4 +1,4 @@
-""" 
+"""
 Abheek Tuladhar
 Period 4 HCP
 HCP Final Project : ShapeStorm
@@ -19,10 +19,10 @@ MILESTONE LIST:
 9. Make it so hitting 1, 2, 3, or 4 deletes the powerup from the directions screen ✅
 10. Make the pause and play button functional ✅
 11. Make functional powerup for the ammo regen - DUE DATE 5/12 (Gotta study for those keystones) ✅
-12. Make random enemies spawn and move down the screen from the dispensers - DUE DATE 5/14
-13. Make the plague, shield, and slowtime powerups functional since enemies exist now - DUE DATE 5/15
-14. Make it so that the player can shoot the enemies and they disappear based on their color for lives - DUE DATE 5/16
-15. Make it so that there are levels based on how many enemies the user has killed - DUE DATE 5/17
+12. Make random enemies spawn and move down the screen from the dispensers - DUE DATE 5/14 ✅
+13. Make the plague, shield, and slowtime powerups functional since enemies exist now - DUE DATE 5/15 ✅
+14. Make it so that the player can shoot the enemies and they disappear based on their color for lives - DUE DATE 5/16 ✅
+15. Make it so that there are levels based on how many enemies the user has killed. Lower levels = easier enemies and less powerups and vice versa - DUE DATE 5/17
 16. (OPTIONAL???) Make it so that the enemies come out of the dispensers at an angle and bounce off of the walls and other enemies - DUE DATE 5/20
 17. Make it so that easier enemies spawn more often at lower levels and harder enemies spawn more often at higher levels - DUE DATE 5/21
 18. Add random powerups to the enemies based on their color - 5/23 (Use the weekend to study for your finals. Good luck from your past self from 5/12)
@@ -74,8 +74,8 @@ player_x_scale = 80
 player = pygame.transform.scale(player, (player_x_scale, player_x_scale*1.25))
 
 #Powerup images and their names (for the powerup effect function)
-POWERUPS = [plague, shield, shield, slowtime, slowtime, slowtime, ammoregen, ammoregen, ammoregen, ammoregen] #Certain powerups are more common then others
-POWERUP_NAMES = ['plague', 'shield', 'shield', 'slowtime', 'slowtime', 'slowtime', 'ammoregen', 'ammoregen', 'ammoregen', 'ammoregen']
+POWERUPS = [shield, plague, shield, shield, slowtime, slowtime, slowtime, ammoregen, ammoregen, ammoregen, ammoregen] #Certain powerups are more common then others
+POWERUP_NAMES = ['shield', 'plague', 'shield', 'shield', 'slowtime', 'slowtime', 'slowtime', 'ammoregen', 'ammoregen', 'ammoregen', 'ammoregen']
 
 #Sound Loading
 music = pygame.mixer.Sound("Audio/Music.mp3")
@@ -86,38 +86,79 @@ gun_cock = pygame.mixer.Sound("Audio/gun_cock.wav")
 #Background music plays on repeat
 music.play(-1)
 
-def powerup_effect(powerup_name, current_bullet_reload_time, bullet_reload_time):
+def powerup_effect(powerup_name, current_bullet_reload_time, bullet_reload_time, enemies):
     """
-    Applies the effect of the powerup to the player.
-    For ammoregen, it returns the halved cooldown based on the base reload time.
+    Applies the effect of the powerup to the player
 
     Parameters:
     -----------
     powerup_name : str
-        The name of the powerup (e.g., 'ammoregen').
+        The name of the powerup (e.g., 'ammoregen')
     current_bullet_reload_time : float
-        The current bullet reload time.
+        The current bullet reload time
     bullet_reload_time : float
-        The player's normal, original bullet reload time.
+        The player's normal, original bullet reload time
+    enemies : list
+        A list of enemy dictionaries filled with their stats.
 
     Returns:
     --------
     bullet_reload_time_updated : float
-        The new bullet_reload_time.
+        The new bullet_reload_time
+    enemies : list
+        The updated list of enemies
+    shield_active : bool
+        Whether the shield is active or not
     """
 
     bullet_reload_time_updated = current_bullet_reload_time
+    shield_active = False
 
     if powerup_name == 'plague':
-        pass #TODO: Implement plague effect
+        #Create a new list to store enemies that are not below the line
+        enemies_to_keep = []
+        for enemy in enemies:
+            if not enemy['y'] >= HEIGHT // 2 - 3*xu: #If the enemy is at or below the line
+                enemies_to_keep.append(enemy)
+        enemies = enemies_to_keep  #Replace the old list with the modified list
+        #Decided to do it this way so that we don't update an over-shrinked list (earlier bug)
+
     elif powerup_name == 'shield':
-        pass #TODO: Implement shield effect
+        shield_active = True #This will be used to make a barrier of shield images (Needs to be checked every frame so it's in main)
+
     elif powerup_name == 'slowtime':
-        pass #TODO: Implement slowtime effect
+        for enemy in enemies:
+            enemy['speed'] = enemy['speed'] / 2
+
     elif powerup_name == 'ammoregen':
         bullet_reload_time_updated = bullet_reload_time / 2 #Half the original cooldown
 
-    return bullet_reload_time_updated
+    return bullet_reload_time_updated, enemies, shield_active
+
+
+def enemyHealth(enemy_type):
+    """
+    Returns the health of the enemy based on its type
+
+    Parameters:
+    -----------
+    enemy_type : str
+        The type of the enemy (e.g., 'easy', 'medium', 'hard', 'insane')
+
+    Returns:
+    --------
+    int
+        The health of the enemy
+    """
+
+    if enemy_type == 'easy':
+        return 1
+    elif enemy_type == 'medium':
+        return 2
+    elif enemy_type == 'hard':
+        return 3
+    elif enemy_type == 'insane':
+        return 4
 
 
 def main():
@@ -148,11 +189,18 @@ def main():
     powerup_cooldown = 5
     last_powerup_spawn_time = 0
 
+    last_enemy_spawn_time = 0
+    enemy_speed = 5
+    enemy_cooldown = 3
+    enemy_choice = ['easy', 'medium', 'hard', 'insane']
+    possible_x_pos = [24.5*xu, 33.5*xu, 42.5*xu, 51.5*xu]
+    enemies = []
+
     #I didn't copy code from Gemini AI, however, I was stuck on how to adjust the current_time with the pausing
     #It gave me the idea of tracking how much time was spent in pause mode
     time_at_pause_start = 0 #To store timestamp when pause begins so pausing doesn't continue the ticks
 
-    #Hitboxes... again
+    #Hitboxes
     pause_button_hitbox = pygame.Rect(58.5*xu, 0, 4*xu, 4*xu)
     play_button_hitbox = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
 
@@ -162,8 +210,11 @@ def main():
     BULLET_SPEED = 20
 
     bullet_cooldown_time = 0.8
-    copy_bullet_cooldown_time = bullet_cooldown_time #Store the normal cooldown so we can edit and save it
-    ammoregen_time_end = 0 #Timestamp when ammoregen effect ends and is 0 if not active
+    copy_bullet_cooldown_time = bullet_cooldown_time
+    ammoregen_time_end = 0
+    slowtime_end = 0
+    shield_time_end = 0
+    shield_active = False
 
     #Game Loop!
     while True:
@@ -186,6 +237,15 @@ def main():
                         pause_duration = pygame.time.get_ticks() - time_at_pause_start
                         last_shot_time += pause_duration
                         last_powerup_spawn_time += pause_duration
+                        last_enemy_spawn_time += pause_duration #Adjust enemy spawn timer
+
+                        #Adjust active powerup timers
+                        if ammoregen_time_end > 0:
+                            ammoregen_time_end += pause_duration
+                        if slowtime_end > 0:
+                            slowtime_end += pause_duration
+                        if shield_time_end > 0:
+                            shield_time_end += pause_duration
 
                         time_at_pause_start = 0 #Reset for the next pause
 
@@ -237,19 +297,24 @@ def main():
                         powerup_remove_idx = 3
 
                     if powerup_name != None:
-                        bullet_cooldown_time = powerup_effect(powerup_name, bullet_cooldown_time, copy_bullet_cooldown_time)
+                        bullet_cooldown_time, enemies, shield_active = powerup_effect(powerup_name, bullet_cooldown_time, copy_bullet_cooldown_time, enemies)
 
                         if powerup_name == 'ammoregen':
                             ammoregen_time_end = pygame.time.get_ticks() + 10000 #the expiration time
                         elif powerup_name == 'shield':
-                            pass
-                        elif powerup_name == 'plague':
-                            pass
+                            shield_time_end = pygame.time.get_ticks() + 5000
+
                         elif powerup_name == 'slowtime':
-                            pass
+                            slowtime_end = pygame.time.get_ticks() + 3000
 
                         #Remove the powerup from the collected powerups list
                         collected_powerups.pop(powerup_remove_idx)
+
+        #This isn't inside of powerup_effect because it needs to be checked every frame
+        if shield_active:
+            for enemy in enemies:
+                if enemy['y'] >= HEIGHT - 15*yu - enemy['size'] * xu:
+                    enemies.remove(enemy) #Remove the enemy if it is below the line
 
         #Game logic updates only if not paused
         if not paused:
@@ -282,7 +347,7 @@ def main():
             active_bullets = []
             for bullet in bullets:
                 bullet['y'] -= bullet['speed'] #Move the bullet up
-                if bullet['y'] + bullet['height'] > 0: #If bullet on screen
+                if bullet['y'] + bullet['height'] > 0: #If bullet is still on screen
                     active_bullets.append(bullet)
             bullets = active_bullets
 
@@ -291,14 +356,21 @@ def main():
                 bullet_cooldown_time = copy_bullet_cooldown_time #Revert to normal
                 ammoregen_time_end = 0 #Mark as inactive
 
-            #Bullet-Powerup Collisions
-            powerups_to_keep = []
-            bullets_after_collision = list(bullets) #Modifyable copy
+            #Check if slowtime effect should expire
+            if slowtime_end > 0 and current_time >= slowtime_end:
+                for enemy in enemies:
+                    enemy['speed'] = enemy['speed'] * 2
+                slowtime_end = 0 #Mark as inactive
 
+            #Check if shield effect should expire
+            if shield_time_end > 0 and current_time >= shield_time_end:
+                shield_active = False
+                shield_time_end = 0 #Mark as inactive
+
+            #Bullet-Powerup Collisions
             for powerup_data in powerup_list:
-                powerup_hit_by_bullet = False
                 for bullet in bullets:
-                    #Create proper rects for collision
+                    #Create rects for collision
                     powerup_rect = pygame.Rect(powerup_data['x'], powerup_data['y'], 2*xu, 2*xu) #Powerups are 2*xu by 2*xu
                     bullet_rect = pygame.Rect(bullet['x'], bullet['y'], bullet['width'], bullet['height'])
 
@@ -307,20 +379,43 @@ def main():
                             collected_powerups.append(powerup_data) #Add the actual powerup dict
                         else:
                             collected_powerups[random.randint(0, len(collected_powerups) - 1)] = powerup_data
+                        bullets.remove(bullet)
+                        powerup_list.remove(powerup_data)
 
-                        if bullet in bullets_after_collision: #Bullet is consumed
-                            bullets_after_collision.remove(bullet)
-                        powerup_hit_by_bullet = True
-                        break #Bullet hits one powerup, powerup is collected
+        #Enemies
+        if current_time - last_enemy_spawn_time > enemy_cooldown * 1000 and not paused:
+            enemy_x = random.choice(possible_x_pos) #Randomly choose x position from the dispensers
+            enemy_type = random.choice(enemy_choice)
 
-                if not powerup_hit_by_bullet:
-                    powerups_to_keep.append(powerup_data)
+            current_spawn_speed = enemy_speed #Default speed
+            if slowtime_end > 0 and current_time < slowtime_end:
+                current_spawn_speed = enemy_speed / 2
 
-            powerup_list = powerups_to_keep
-            bullets = bullets_after_collision
+            enemy = {'x' : enemy_x,
+                     'y' : 8*yu,
+                     'type' : enemy_type,
+                     'size' : 3,
+                     'speed' : current_spawn_speed,
+                     'health' : enemyHealth(enemy_type)}
+
+            enemies.append(enemy)
+            last_enemy_spawn_time = current_time
+
+        #Enemy-Bullet Collisions
+        for enemy in enemies:
+            for bullet in bullets:
+                #Create proper rects for collision
+                enemy_rect = pygame.Rect(enemy['x'], enemy['y'], enemy['size']*xu, enemy['size']*xu)
+                bullet_rect = pygame.Rect(bullet['x'], bullet['y'], bullet['width'], bullet['height'])
+
+                if enemy_rect.colliderect(bullet_rect):
+                    enemy['health'] -= 1
+                    bullets.remove(bullet)
+                    if enemy['health'] <= 0:
+                        enemies.remove(enemy)
 
         surface.fill(BLUE)
-        drawingFunctions.drawScreen(x, bullets, powerup_list, collected_powerups)
+        drawingFunctions.drawScreen(x, bullets, powerup_list, collected_powerups, enemies, paused, shield_active)
 
         if paused:
             drawingFunctions.drawPlay()

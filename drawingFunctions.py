@@ -4,7 +4,7 @@ pygame.init()
 pygame.mixer.init()
 
 WIDTH=1000
-HEIGHT=WIDTH*2/3
+HEIGHT=WIDTH * 2/3
 
 size=(WIDTH, HEIGHT)
 surface = pygame.display.set_mode(size)
@@ -217,16 +217,16 @@ def drawDirections():
     drawDirectionLine(12*yu)
 
     surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13*yu)) #draw plague image
-    show_message("Kill 50% of the enemies beyond half way line", "Consolas", 10, 10.5*xu, 14.5*yu, GOLD)
+    show_message("Kill all enemies beyond half way line", "Consolas", 10, 10.5*xu, 14.5*yu, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15*yu)) #draw slowtime image
     show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 10, 10*xu, 16.5*yu, GOLD)
 
     surface.blit(pygame.transform.scale(shield, (30, 30)), (0, 17.5*yu)) #draw shield image
-    show_message("Shield for 3 seconds", "Consolas", 10, 6*xu, 19*yu, GOLD)
+    show_message("Shield for 5 seconds", "Consolas", 10, 6*xu, 19*yu, GOLD)
 
     surface.blit(pygame.transform.scale(ammoregen, (30, 30)), (0, 20*yu)) #draw ammoregen image
-    show_message("Reload speed reduced by 50% for 10 seconds", "Consolas", 10, 10*xu, 21.5*yu, GOLD)
+    show_message("Reload cooldown reduced by 50% for 10 seconds", "Consolas", 10, 10*xu, 21.5*yu, GOLD)
 
     show_message("Powerups spawn below the line. Shoot them to collect", "Consolas", 10, 10.2*xu, 24*yu, GOLD)
 
@@ -314,7 +314,8 @@ def draw_powerups(powerup_list):
         surface.blit(powerup_data['image'], (powerup_data['x'], powerup_data['y']))
 
 
-def drawScreen(x, current_bullets, powerup_list, collected_powerup_list):
+    # Adjusted coordinates for drawing active powerup icons and time near the pause button
+def drawScreen(x, current_bullets, powerup_list, collected_powerup_list, enemies, paused, shield_active):
     """
     Draws the screen with all the elements
 
@@ -328,6 +329,12 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list):
         The list of active powerups on the screen.
     collected_powerup_list : list
         The list of collected powerups.
+    enemies : list
+        The list of enemies on the screen.
+    paused : bool
+        Whether the game is paused or not.
+    shield_active : bool
+        Whether the shield powerup is active or not.
 
     Returns:
     --------
@@ -370,6 +377,20 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list):
             surface.blit(powerup['image'], (3.5*xu, HEIGHT - 4.5*yu))
         elif collected_powerup_list.index(powerup) == 3:
             surface.blit(powerup['image'], (14*xu, HEIGHT - 4.5*yu))
+
+    #Draw enemies
+    for enemy in enemies:
+        drawEnemy(enemy['x'], enemy['y'], enemy['type'], enemy['size'])
+        if not paused:
+            enemy['y'] += enemy['speed']
+        if enemy['y'] > HEIGHT:
+            enemies.pop(enemies.index(enemy))
+
+    if shield_active:
+        x = WIDTH//3
+        for i in range(45):
+            surface.blit(pygame.transform.scale(shield, (xu, xu)), (x, HEIGHT - 15*yu))
+            x += xu
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
