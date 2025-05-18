@@ -66,7 +66,7 @@ def drawPlay():
     play_rect = pygame.Rect(37*xu, 24*yu, 10*xu, 10*xu)
 
     pygame.draw.rect(surface, BROWN, play_rect, 0)
-    pygame.draw.polygon(surface, GOLD, [(39*xu, 26*yu), (39*xu, 37*yu), (46*xu, 31*yu)])
+    pygame.draw.polygon(surface, GOLD, [(39*xu, 26*yu), (39*xu, 37*yu), (46*xu, 31*yu)]) #The golden triangle
 
     return play_rect
 
@@ -213,11 +213,12 @@ def drawDirections():
     show_message("<-- --> : Movement", "Consolas", 20, 10*xu, 6*yu, GOLD)
     show_message(" A   D  : Movement", "Consolas", 20, 10*xu, 8*yu, GOLD)
     show_message("Space  : Shoot", "Consolas", 20, 9.2*xu, 10*yu, GOLD) #9.2 to allign the :
+    show_message("1, 2, 3, 4 : Powerups", "Consolas", 20, 8.8*xu, 11.7*yu, GOLD)
 
-    drawDirectionLine(12*yu)
+    drawDirectionLine(13    *yu)
 
     surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13*yu)) #draw plague image
-    show_message("Kill all enemies beyond half way line", "Consolas", 10, 10.5*xu, 14.5*yu, GOLD)
+    show_message("Kill all enemies beyond half way line", "Consolas", 10, 9*xu, 14.5*yu, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15*yu)) #draw slowtime image
     show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 10, 10*xu, 16.5*yu, GOLD)
@@ -226,9 +227,12 @@ def drawDirections():
     show_message("Shield for 5 seconds", "Consolas", 10, 6*xu, 19*yu, GOLD)
 
     surface.blit(pygame.transform.scale(ammoregen, (30, 30)), (0, 20*yu)) #draw ammoregen image
-    show_message("Reload cooldown reduced by 50% for 10 seconds", "Consolas", 10, 10*xu, 21.5*yu, GOLD)
+    show_message("Reload cooldown reduced by 50% for 10 seconds", "Consolas", 10, 10.7*xu, 21.5*yu, GOLD)
 
-    show_message("Powerups spawn below the line. Shoot them to collect", "Consolas", 10, 10.2*xu, 24*yu, GOLD)
+    surface.blit(pygame.transform.scale(heart, (30, 30)), (0, 22.3*yu)) #draw heart image
+    show_message("Gain +1 life", "Consolas", 10, 4.5*xu, 23.5*yu, GOLD)
+
+    show_message("Shoot powerups to collect", "Consolas", 10, 15*xu, 24*yu, GOLD, BLACK)
 
     drawDirectionLine(25*yu)
     drawDirectionLine(25*yu, False, 8*yu)
@@ -314,8 +318,25 @@ def draw_powerups(powerup_list):
         surface.blit(powerup_data['image'], (powerup_data['x'], powerup_data['y']))
 
 
+def enemyDeathAnimation(enemy):
+    """
+    Draws the enemy death animation (Like a firework)
+
+    Parameters:
+    -----------
+    enemy : list of dict
+        The enemy data containing its position, type, and other attributes.
+
+    Returns:
+    --------
+    None
+    """
+
+    #Firework Animation
+    pygame.draw.circle(surface, enemy['color'], (enemy['x'], enemy['y']), xu)
+
     # Adjusted coordinates for drawing active powerup icons and time near the pause button
-def drawScreen(x, current_bullets, powerup_list, collected_powerup_list, enemies, paused, shield_active):
+def drawScreen(shield_wall_x, current_bullets, powerup_list, collected_powerup_list, enemies, paused, shield_active, lose, lives, level, kills, win):
     """
     Draws the screen with all the elements
 
@@ -335,6 +356,8 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list, enemies
         Whether the game is paused or not.
     shield_active : bool
         Whether the shield powerup is active or not.
+    lose : bool
+        Whether the player has lost or not.
 
     Returns:
     --------
@@ -349,14 +372,18 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list, enemies
     pygame.draw.rect(surface, GOLD, [59*xu, 0.7*yu, xu, 3*xu], 0)
     pygame.draw.rect(surface, GOLD, [61*xu, 0.7*yu, xu, 3*xu], 0)
 
-    #Draw Dispensers
+    #Draw Dispensers at the top
     drawDispensers(25*xu)
     drawDispensers(34*xu)
     drawDispensers(43*xu)
     drawDispensers(52*xu)
 
     #Draw Player:
-    surface.blit(player, (x, HEIGHT - 10*yu)) #draw player image
+    surface.blit(player, (shield_wall_x, HEIGHT - 10*yu)) #draw player image
+
+    #Draw Player Health:
+    surface.blit(pygame.transform.scale(heart, (2*xu, 2*xu)), (shield_wall_x, HEIGHT - 4.5*yu))
+    show_message(f"x{lives}", "Consolas", 40, shield_wall_x + 3.5*xu, HEIGHT - 3*yu, GOLD)
 
     #Draw Bullets:
     for bullet in current_bullets:
@@ -381,16 +408,33 @@ def drawScreen(x, current_bullets, powerup_list, collected_powerup_list, enemies
     #Draw enemies
     for enemy in enemies:
         drawEnemy(enemy['x'], enemy['y'], enemy['type'], enemy['size'])
-        if not paused:
+        if not paused: #If game isn't paused, move enemy
             enemy['y'] += enemy['speed']
-        if enemy['y'] > HEIGHT:
-            enemies.pop(enemies.index(enemy))
 
-    if shield_active:
-        x = WIDTH//3
-        for i in range(45):
-            surface.blit(pygame.transform.scale(shield, (xu, xu)), (x, HEIGHT - 15*yu))
-            x += xu
+    if shield_active: #If shield active, draw the shield wall
+        shield_wall_x = WIDTH//3
+        for i in range(45): #Draw 45 shields for the wall
+            surface.blit(pygame.transform.scale(shield, (xu, xu)), (shield_wall_x, HEIGHT - 15*yu))
+            shield_wall_x += xu
+
+    if lose:
+        show_message("Game Over", "Consolas", 60, 2*WIDTH//3, HEIGHT//2, RED, BLACK)
+        show_message("Press R to Restart", "Consolas", 30, 2*WIDTH//3, HEIGHT//2 + 35, RED, BLACK)
+
+    if win:
+        show_message("You Won!", "Consolas", 60, 2*WIDTH//3, HEIGHT//2, GREEN, BLACK)
+        show_message("Press R to Restart", "Consolas", 30, 2*WIDTH//3, HEIGHT//2 + 35, GREEN, BLACK)
+
+    show_message(f"Level: 0{level}", "Consolas", 20, WIDTH - 3.2*xu, 7*yu, GOLD, BLACK)
+
+    if kills < 10:
+        show_message(f"Kills: 0{kills}", "Consolas", 20, WIDTH - 3.2*xu, 9*yu, GOLD, BLACK)
+    else:
+        show_message(f"Kills: {kills}", "Consolas", 20, WIDTH - 3.2*xu, 9*yu, GOLD, BLACK)
+    show_message("Goal: 60", "Consolas", 20, WIDTH - 2.8*xu, 11*yu, GOLD, BLACK)
+
+    if paused and not lose and not win: #Only draw play button if paused *and not game over*
+        drawPlay()
 
 
 def show_message(words, font_name, size, x, y, color, bg=None, hover=False):
