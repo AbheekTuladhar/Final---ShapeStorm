@@ -327,11 +327,26 @@ def enemy_death_animation(enemy):
     None
     """
 
-    #TODO: Make a firework animation that is the color of the enemy
-    pass
+    enemy_x = enemy['x']
+    enemy_y = enemy['y']
+    enemy_type = enemy['type']
+
+    if enemy_type == 'easy':
+        color = GREEN
+    elif enemy_type == 'medium':
+        color = YELLOW
+    elif enemy_type == 'hard':
+        color = RED
+    elif enemy_type == 'insane':
+        color = PURPLE
+
+    pygame.draw.rect(surface, color, (enemy_x + 1.5 * XU, enemy_y - 1.5 * YU, 0.5 * YU, 1.5 * YU), 0) #Top Firework
+    pygame.draw.rect(surface, color, (enemy_x + 1.5 * XU, enemy_y + 3 * XU, 0.5 * YU, 1.5 * YU), 0) #Bottom Firework
+    pygame.draw.rect(surface, color, (enemy_x - 1.5 * XU, enemy_y + 1.5 * YU, 1.5 * XU, 0.5 * YU), 0) #Left Firework
+    pygame.draw.rect(surface, color, (enemy_x + 3 * XU, enemy_y + 1.5 * YU, 1.5 * XU, 0.5 * YU), 0) #Right Firework
 
 
-def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_list, enemies, paused, shield_active, lose, lives, level, kills, win):
+def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_list, enemies, dying_enemies_list, paused, shield_active, lose, lives, level, kills, win):
     """
     Draws the screen with all the elements
 
@@ -347,6 +362,8 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
         The list of collected powerups.
     enemies : list
         The list of enemies on the screen.
+    dying_enemies_list : list
+        The list of enemies currently undergoing death animation.
     paused : bool
         Whether the game is paused or not.
     shield_active : bool
@@ -405,6 +422,10 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
         draw_enemy(enemy['x'], enemy['y'], enemy['type'], enemy['size'])
         if not paused: #If game isn't paused, move enemy
             enemy['y'] += enemy['speed']
+
+    #Draw enemy death animations
+    for dying_enemy_info in dying_enemies_list:
+        enemy_death_animation(dying_enemy_info["enemy_data"]) # Pass the actual enemy data
 
     if shield_active: #If shield active, draw the shield wall
         shield_wall_x = WIDTH // 3

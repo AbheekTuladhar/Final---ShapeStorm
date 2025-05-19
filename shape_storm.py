@@ -27,7 +27,7 @@ MILESTONE LIST:
 17. Make it so that there are levels based on how many enemies the user has killed. Lower levels = easier enemies and less powerups and vice versa - DUE DATE 5/17 ✅
 18. Make it so that easier enemies spawn more often at lower levels and harder enemies spawn more often at higher levels - DUE DATE 5/17 ✅
 19. Add a way to win - DUE DATE 5/17 ✅
-20. Add enemy death animation - DUE DATE 5/18
+20. Add enemy death animation - DUE DATE 5/18 ✅
 21. (OPTIONAL???) Make it so that the enemies come out of the dispensers at an angle and bounce off of the walls and other enemies - DUE DATE 5/20
 22. Add random powerups to the enemies based on their color - 5/23 (Use the weekend to study for your finals. Good luck from your past self from 5/12)
 """
@@ -158,6 +158,8 @@ def powerup_effect(powerup_name, current_bullet_reload_time, bullet_reload_time,
 
     bullet_reload_time_updated = current_bullet_reload_time
     shield_active = False
+    win = False
+    paused = False
 
     if powerup_name == "plague":
         #Create a new list to store enemies that are not below the line
@@ -166,6 +168,9 @@ def powerup_effect(powerup_name, current_bullet_reload_time, bullet_reload_time,
             if enemy["y"] <= HEIGHT // 2 - 3 * XU: #If the enemy is at or below the line
                 enemies_to_keep.append(enemy)
                 kills += 1
+                if kills >= 60:
+                    win = True
+                    paused = True
         enemies = enemies_to_keep  #Replace the old list with the modified list
         #Decided to do it this way so that we don"t update an over - shrinked list (earlier bug)
 
@@ -182,7 +187,7 @@ def powerup_effect(powerup_name, current_bullet_reload_time, bullet_reload_time,
     elif powerup_name == "heart":
         lives += 1
 
-    return bullet_reload_time_updated, enemies, shield_active, lives, kills
+    return bullet_reload_time_updated, enemies, shield_active, lives, kills, win, paused
 
 
 def enemy_health(enemy_type):
@@ -223,9 +228,9 @@ def main():
     None
     """
 
-    # Game Variables
+    #Game Variables
 
-    # Player Variables
+    #Player Variables
     player_x = 40 * XU
     player_speed = 15
     lives = 5
@@ -240,6 +245,8 @@ def main():
     #Enemy Variables
     last_enemy_spawn_time = 0
     enemy_speed = 5
+    enemies = []
+    dying_enemies = [] #List to store enemies undergoing death animation
     enemy_cooldown = 3
     enemy_choice = ["easy", "medium", "hard", "insane"]
     possible_x_pos = [24.5 * XU, 33.5 * XU, 42.5 * XU, 51.5 * XU]
@@ -267,6 +274,7 @@ def main():
     AMMO_REGEN_EXPIRATION = 10000 #10 seconds
     SLOWTIME_EXPIRATION = 5000 #5 seconds
     SHIELD_EXPIRATION = 3000 #3 seconds
+    DEATH_ANIMATION_DURATION = 500 #0.5 seconds
 
     #Pause / Play Variables
     PAUSE_BUTTON_HITBOX = pygame.Rect(58.5 * XU, 0, 4 * XU, 4 * XU)
@@ -304,6 +312,7 @@ def main():
                 last_enemy_spawn_time = 0
                 enemy_speed = 5
                 enemy_cooldown = 3
+                dying_enemies = []
                 enemy_choice = ["easy", "medium", "hard", "insane"]
                 possible_x_pos = [24.5 * XU, 33.5 * XU, 42.5 * XU, 51.5 * XU]
                 enemies = []
@@ -414,7 +423,7 @@ def main():
                         powerup_remove_idx = 3
 
                     if powerup_name is not None: #If a powerup actually got used, then call powerup_effect()
-                        bullet_cooldown_time, enemies, shield_active, lives, kills = powerup_effect(powerup_name, bullet_cooldown_time, copy_bullet_cooldown_time, enemies, lives, kills)
+                        bullet_cooldown_time, enemies, shield_active, lives, kills, win, paused = powerup_effect(powerup_name, bullet_cooldown_time, copy_bullet_cooldown_time, enemies, lives, kills)
 
                         #Timed powerups for expiration
                         if powerup_name == "ammo_regen":
@@ -523,6 +532,7 @@ def main():
             last_enemy_spawn_time = current_time
 
         #Enemy - Bullet Collisions & Player Death
+        enemies_to_keep = []
         for enemy in enemies:
             for bullet in bullets:
                 #Create proper rects for collision
@@ -534,23 +544,41 @@ def main():
                     bullets.remove(bullet)
                     if enemy["health"] <= 0: #If the enemy died
                         kills += 1  #Increment kill count
-                        enemies.remove(enemy)
+                        #Add to dying_enemies list instead of removing from enemies directly
+                        dying_enemies.append({"enemy_data": enemy, "animation_start_time": current_time})
 
                         if kills >= 60:
                             win = True
                             paused = True
 
-                        #Level Update
+                        #Level Update (should happen when enemy is confirmed killed)
                         for lvl, requirement in LEVEL_REQUIREMENTS.items():
                             if kills >= requirement:
                                 level = lvl
 
+            if enemy["health"] > 0: #If enemy is still alive after bullet checks
+                enemies_to_keep.append(enemy)
+        enemies = enemies_to_keep
+
+        #Enemy_death animations
+        active_dying_enemies = []
+        for dying_enemy_info in dying_enemies:
+            if current_time - dying_enemy_info["animation_start_time"] <= DEATH_ANIMATION_DURATION: #If we should be animating the death
+                active_dying_enemies.append(dying_enemy_info)
+        dying_enemies = active_dying_enemies
+
+        #For making sure that if one enemy reaches the bottom, you don't lose infinite health
+        enemies_still_on_screen = []
+        for enemy in enemies:
             if enemy["y"] >= HEIGHT: #If the enemy made it to the other end of the screen
                 lives -= 1
-                enemies.remove(enemy)
                 if lives <= 0: #If the player died
                     lose = True
                     paused = True
+                #Removes it
+            else:
+                enemies_still_on_screen.append(enemy)
+        enemies = enemies_still_on_screen
 
         #Level checks
         enemy_cooldown = LEVELED_INFO[level]["enemy_cooldown"]
@@ -559,7 +587,7 @@ def main():
         #Update base cooldown and apply ammo_regen if active
         new_base_cooldown = LEVELED_INFO[level]["bullet_cooldown"]
         if copy_bullet_cooldown_time is not new_base_cooldown:
-            copy_bullet_cooldown_time = new_base_cooldown # Update cooldown
+            copy_bullet_cooldown_time = new_base_cooldown #Update cooldown
 
         #Set the actual bullet_cooldown_time based on ammo_regen status and current base
         current_time_for_level_check = pygame.time.get_ticks()
@@ -574,7 +602,7 @@ def main():
         enemy_choice = LEVELED_INFO[level]["enemy_choice"]
 
         SURFACE.fill(BLUE) #Refill the screen for the next frame
-        drawing_functions.draw_screen(player_x, bullets, powerup_list, collected_powerups, enemies, paused, shield_active, lose, lives, level, kills, win) #Draws next frame
+        drawing_functions.draw_screen(player_x, bullets, powerup_list, collected_powerups, enemies, dying_enemies, paused, shield_active, lose, lives, level, kills, win) #Draws next frame
 
         pygame.display.update()
 
