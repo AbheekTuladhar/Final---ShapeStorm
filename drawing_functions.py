@@ -17,7 +17,7 @@ HEIGHT = WIDTH * 2 / 3
 size=(WIDTH, HEIGHT)
 surface = pygame.display.set_mode(size)
 
-pygame.display.set_caption("ShapeStorm")
+pygame.display.set_caption('ShapeStorm')
 
 BLACK = (0, 0, 0)
 BROWN = (145, 113, 76)
@@ -32,18 +32,13 @@ BLUE = (173, 216, 230)
 XU = WIDTH // 60
 YU = HEIGHT // 60
 
-plague = pygame.image.load("Images/Plague.png").convert_alpha()
-slowtime  = pygame.image.load("Images/slowtime.png").convert_alpha()
-shield = pygame.image.load("Images/shield.png").convert_alpha()
-ammo_regen = pygame.image.load("Images/ammo_regen.png").convert_alpha()
-heart = pygame.image.load("Images/heart.png").convert_alpha()
+plague = pygame.image.load('Images/Plague.png').convert_alpha()
+slowtime  = pygame.image.load('Images/slowtime.png').convert_alpha()
+shield = pygame.image.load('Images/shield.png').convert_alpha()
+ammo_regen = pygame.image.load('Images/ammo_regen.png').convert_alpha()
+heart = pygame.image.load('Images/heart.png').convert_alpha()
 heart = pygame.transform.scale(heart, (XU, XU))
-dodger = pygame.image.load("Images/dodger.png").convert_alpha()
-dash = pygame.image.load("Images/dash.png").convert_alpha()
-rotation = pygame.image.load("Images/rotation.png").convert_alpha()
-bumper = pygame.image.load("Images/bumper.png").convert_alpha()
-teleport = pygame.image.load("Images/teleport.png").convert_alpha()
-player = pygame.image.load("Images/Player.png").convert_alpha()
+player = pygame.image.load('Images/Player.png').convert_alpha()
 player_x_scale = 80
 player = pygame.transform.scale(player, (player_x_scale, player_x_scale * 1.25))
 
@@ -188,7 +183,7 @@ def draw_direction_heart(x, y, amount):
         surface.blit(heart, (x + i * XU, y))
 
 
-def draw_directions():
+def draw_directions(level, kills):
     """
     Draws the directions on the left side of the screen
 
@@ -206,30 +201,37 @@ def draw_directions():
     pygame.draw.line(surface, GOLD, (WIDTH * 1 / 3, HEIGHT // 2), (WIDTH, HEIGHT // 2), 5)
     draw_direction_line(4 * YU)
 
-    show_message("Directions:", "Consolas", 30, 10 * XU, 2 *  YU, GOLD)
-    show_message("<----> : Movement", "Consolas", 20, 10 * XU, 6 * YU, GOLD)
-    show_message(" A   D  : Movement", "Consolas", 20, 10 * XU, 8 * YU, GOLD)
-    show_message("Space  : Shoot", "Consolas", 20, 9.2 * XU, 10 * YU, GOLD) #9.2 to allign the :
-    show_message("1, 2, 3, 4 : Powerups", "Consolas", 20, 8.8 * XU, 11.7 * YU, GOLD)
+    show_message('Directions:', 'Consolas', 30, 10 * XU, 2 *  YU, GOLD)
+    show_message('<----> : Movement', 'Consolas', 20, 10 * XU, 6 * YU, GOLD)
+    show_message(' A   D  : Movement', 'Consolas', 20, 10 * XU, 8 * YU, GOLD)
+    show_message('Space  : Shoot', 'Consolas', 20, 9.2 * XU, 10 * YU, GOLD) #9.2 to allign the :
+    show_message('1, 2, 3, 4 : Powerups', 'Consolas', 20, 8.8 * XU, 11.7 * YU, GOLD)
 
     draw_direction_line(13 * YU)
 
     surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13 * YU)) #draw plague image
-    show_message("Kill all enemies beyond half way line", "Consolas", 10, 9 * XU, 14.5 * YU, GOLD)
+    show_message('Kill all enemies beyond half way line', 'Consolas', 10, 9 * XU, 14.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15 * YU)) #draw slowtime image
-    show_message("Slow down the enemies for 3 seconds by 50%", "Consolas", 10, 10 * XU, 16.5 * YU, GOLD)
+    show_message('Slow down the enemies for 3 seconds by 50%', 'Consolas', 10, 10 * XU, 16.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(shield, (30, 30)), (0, 17.5 * YU)) #draw shield image
-    show_message("Shield for 5 seconds", "Consolas", 10, 6 * XU, 19 * YU, GOLD)
+    show_message('Shield for 5 seconds', 'Consolas', 10, 6 * XU, 19 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(ammo_regen, (30, 30)), (0, 20 * YU)) #draw ammo_regen image
-    show_message("Reload cooldown reduced by 50% for 10 seconds", "Consolas", 10, 10.7 * XU, 21.5 * YU, GOLD)
+    show_message('Reload cooldown reduced by 50% for 10 seconds', 'Consolas', 10, 10.7 * XU, 21.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(heart, (30, 30)), (0, 22.3 * YU)) #draw heart image
-    show_message("Gain +1 life", "Consolas", 10, 4.5 * XU, 23.5 * YU, GOLD)
+    show_message('Gain +1 life', 'Consolas', 10, 4.5 * XU, 23.5 * YU, GOLD)
 
-    show_message("Shoot powerups to collect", "Consolas", 10, 15 * XU, 24 * YU, GOLD, BLACK)
+    show_message('Shoot powerups to collect', 'Consolas', 20, 10 * XU, 35 * YU, GOLD)
+    show_message(f'Level: 0{level}', 'Consolas', 30, 11 * XU, 38 * YU, GOLD)
+
+    if kills < 10:
+        show_message(f'Kills: 0{kills}', 'Consolas', 30, 11 * XU, 41 * YU, GOLD)
+    else:
+        show_message(f'Kills: {kills}', 'Consolas', 30, 11 * XU, 41 * YU, GOLD)
+    show_message('Goal: 60 Kills', 'Consolas', 30, 11 * XU, 44 * YU, GOLD)
 
     draw_direction_line(25 * YU)
     draw_direction_line(25 * YU, False, 8 * YU)
@@ -241,41 +243,27 @@ def draw_directions():
     draw_enemy(10.8 * XU, 26 * YU, 'hard', 1.5)
     draw_enemy(10.8 * XU, 30 * YU, 'insane', 1.5)
 
-    show_message("Easy", "Consolas", 15, 4 * XU, 27 * YU, GOLD)
-    show_message("Medium", "Consolas", 15, 4 * XU, 31 * YU, GOLD)
-    show_message("Hard", "Consolas", 15, 14 * XU, 27 * YU, GOLD)
-    show_message("Insane", "Consolas", 15, 14 * XU, 31 * YU, GOLD)
+    show_message('Easy', 'Consolas', 15, 4 * XU, 27 * YU, GOLD)
+    show_message('Medium', 'Consolas', 15, 4 * XU, 31 * YU, GOLD)
+    show_message('Hard', 'Consolas', 15, 14 * XU, 27 * YU, GOLD)
+    show_message('Insane', 'Consolas', 15, 14 * XU, 31 * YU, GOLD)
 
     draw_direction_heart(6 * XU, 26.3 * YU, 1)
     draw_direction_heart(6 * XU, 30.5 * YU, 2)
     draw_direction_heart(16 * XU, 26.3 * YU, 3)
     draw_direction_heart(16 * XU, 30.5 * YU, 4)
 
-    #Will do the attirubtes later
-    surface.blit(pygame.transform.scale(rotation, (35, 35)), (5, 33.7 * YU))
-    show_message("Rotation & Speed", "Consolas", 10, 6 * XU, 35 * YU, GOLD)
-
-    surface.blit(pygame.transform.scale(dodger, (30, 30)), (5, 37 * YU))
-    surface.blit(pygame.transform.scale(dash, (30, 30)), (35, 37 * YU))
-    show_message("Can blow air out to dodge bullets", "Consolas", 10, 10 * XU, 38.5 * YU, GOLD)
-
-    surface.blit(pygame.transform.scale(bumper, (40, 10)), (5, 41 * YU))
-    show_message("Gains speed when hitting walls", "Consolas", 10, 9.5 * XU, 41.5 * YU, GOLD)
-
-    surface.blit(pygame.transform.scale(teleport, (35, 35)), (5, 43 * YU))
-    show_message("Teleport to a random location behind themself", "Consolas", 10, 11 * XU, 44.5 * YU, GOLD)
-
     #Powerups:
     draw_direction_line(47 * YU)
-    show_message("Powerups:", "Consolas", 40, 10 * XU, 49 * YU, GOLD)
+    show_message('Powerups:', 'Consolas', 40, 10 * XU, 49 * YU, GOLD)
     draw_direction_line(51 * YU)
     draw_direction_line(51 * YU, False, 11 * YU)
     draw_direction_line(56 * YU)
 
-    show_message("1", "Consolas", 30, 9.5 * XU, 52.5 * YU, GOLD)
-    show_message("2", "Consolas", 30, 20 * XU, 52.5 * YU, GOLD)
-    show_message("3", "Consolas", 30, 9.5 * XU, 57.5 * YU, GOLD)
-    show_message("4", "Consolas", 30, 20 * XU, 57.5 * YU, GOLD)
+    show_message('1', 'Consolas', 30, 9.5 * XU, 52.5 * YU, GOLD)
+    show_message('2', 'Consolas', 30, 20 * XU, 52.5 * YU, GOLD)
+    show_message('3', 'Consolas', 30, 9.5 * XU, 57.5 * YU, GOLD)
+    show_message('4', 'Consolas', 30, 20 * XU, 57.5 * YU, GOLD)
 
 
 def draw_dispensers(x):
@@ -376,7 +364,7 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
     None
     """
 
-    draw_directions()
+    draw_directions(level, kills)
 
     #Draw Pause Button
     pause = pygame.Rect(58.5 * XU, 0, 4 * XU, 4 * XU)
@@ -395,7 +383,7 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
 
     #Draw Player Health:
     surface.blit(pygame.transform.scale(heart, (2 * XU, 2 * XU)), (shield_wall_x, HEIGHT - 4.5 * YU))
-    show_message(f"x{lives}", "Consolas", 40, shield_wall_x + 3.5 * XU, HEIGHT - 3 * YU, GOLD)
+    show_message(f'x{lives}', 'Consolas', 40, shield_wall_x + 3.5 * XU, HEIGHT - 3 * YU, GOLD)
 
     #Draw Bullets:
     for bullet in current_bullets:
@@ -425,7 +413,7 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
 
     #Draw enemy death animations
     for dying_enemy_info in dying_enemies_list:
-        enemy_death_animation(dying_enemy_info["enemy_data"]) # Pass the actual enemy data
+        enemy_death_animation(dying_enemy_info['enemy_data']) # Pass the actual enemy data
 
     if shield_active: #If shield active, draw the shield wall
         shield_wall_x = WIDTH // 3
@@ -434,20 +422,12 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
             shield_wall_x += XU
 
     if lose:
-        show_message("Game Over", "Consolas", 60, 2 * WIDTH // 3, HEIGHT // 2, RED, BLACK)
-        show_message("Press R to Restart", "Consolas", 30, 2 * WIDTH // 3, HEIGHT // 2 + 35, RED, BLACK)
+        show_message('Game Over', 'Consolas', 60, 2 * WIDTH // 3, HEIGHT // 2, RED, BLACK)
+        show_message('Press R to Restart', 'Consolas', 30, 2 * WIDTH // 3, HEIGHT // 2 + 35, RED, BLACK)
 
     if win:
-        show_message("You Won!", "Consolas", 60, 2 * WIDTH // 3, HEIGHT // 2, GREEN, BLACK)
-        show_message("Press R to Restart", "Consolas", 30, 2 * WIDTH // 3, HEIGHT // 2 + 35, GREEN, BLACK)
-
-    show_message(f"Level: 0{level}", "Consolas", 20, WIDTH - 3.2 * XU, 7 * YU, GOLD, BLACK)
-
-    if kills < 10:
-        show_message(f"Kills: 0{kills}", "Consolas", 20, WIDTH - 3.2 * XU, 9 * YU, GOLD, BLACK)
-    else:
-        show_message(f"Kills: {kills}", "Consolas", 20, WIDTH - 3.2 * XU, 9 * YU, GOLD, BLACK)
-    show_message("Goal: 60", "Consolas", 20, WIDTH - 2.8 * XU, 11 * YU, GOLD, BLACK)
+        show_message('You Won!', 'Consolas', 60, 2 * WIDTH // 3, HEIGHT // 2, GREEN, BLACK)
+        show_message('Press R to Restart', 'Consolas', 30, 2 * WIDTH // 3, HEIGHT // 2 + 35, GREEN, BLACK)
 
     if paused and not lose and not win: #Only draw play button if paused  * and not game over *
         draw_play()
