@@ -1,5 +1,8 @@
 """
-This file holds all the drawing functions for the game
+Abheek Tuladhar
+Period 4 HCP
+HCP Final Project : ShapeStorm
+Description: .
 """
 
 try:
@@ -210,7 +213,7 @@ def draw_directions(level, kills):
     draw_direction_line(13 * YU)
 
     surface.blit(pygame.transform.scale(plague, (30, 30)), (0, 13 * YU)) #draw plague image
-    show_message('Kill all enemies beyond half way line', 'Consolas', 10, 9 * XU, 14.5 * YU, GOLD)
+    show_message('Kill all enemies below half way line', 'Consolas', 10, 9 * XU, 14.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15 * YU)) #draw slowtime image
     show_message('Slow down the enemies for 3 seconds by 50%', 'Consolas', 10, 10 * XU, 16.5 * YU, GOLD)
@@ -219,7 +222,7 @@ def draw_directions(level, kills):
     show_message('Shield for 5 seconds', 'Consolas', 10, 6 * XU, 19 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(ammo_regen, (30, 30)), (0, 20 * YU)) #draw ammo_regen image
-    show_message('Reload cooldown reduced by 50% for 10 seconds', 'Consolas', 10, 10.7 * XU, 21.5 * YU, GOLD)
+    show_message('Reload cooldown reduced by 50% for 5 seconds', 'Consolas', 10, 10.7 * XU, 21.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(heart, (30, 30)), (0, 22.3 * YU)) #draw heart image
     show_message('Gain +1 life', 'Consolas', 10, 4.5 * XU, 23.5 * YU, GOLD)
@@ -413,7 +416,7 @@ def draw_screen(shield_wall_x, current_bullets, powerup_list, collected_powerup_
 
     #Draw enemy death animations
     for dying_enemy_info in dying_enemies_list:
-        enemy_death_animation(dying_enemy_info['enemy_data']) # Pass the actual enemy data
+        enemy_death_animation(dying_enemy_info['enemy_data']) #Pass the actual enemy data
 
     if shield_active: #If shield active, draw the shield wall
         shield_wall_x = WIDTH // 3
