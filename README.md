@@ -7,10 +7,9 @@ Although the game is simple to learn, it is difficult to master, which is my fav
 
 This project is made for my final for HCP (Honors Computer Programming)
 
-======================
+
 CREDITS AND REFERENCES
 ======================
-
 1. Gemini AI - Gave the idea to use time stamps to preserve cooldowns
 2. Friend - Attributes with a list of dictionary instead of classes and max/min idea for movement
 3. Ammo Regen image - https://www.pinterest.com/pin/arrow-redo-refresh-reload-repeat-sync-icon-download-on-iconfinder--876090933731401275/
