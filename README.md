@@ -18,7 +18,13 @@ CREDITS AND REFERENCES
 6. Slow time image - https://media.lordicon.com/icons/wired/flat/45-clock-time.svg
 7. music.mp3 - Coding with Russ Github: https://github.com/russs123/Shooter/tree/main/audio
 8. gun_cock.wav - https://pixabay.com/sound-effects/cocking-a-revolver-6279/
-9. no_ammo.mp3 - https://pixabay.com/sound-effects/empty-gun-shot-6209/
-10. shot.wav - Coding with Russ Github: https://github.com/russs123/Shooter/tree/main/audio
-11. Plague image - https://world.taobao.com/item/591113610448.htm
-12. Everything else - Abheek Tuladhar
+9. lose.mp3 - https://pixabay.com/sound-effects/losing-horn-313723/
+10. Pop.mp3 - https://pixabay.com/sound-effects/sharp-pop-328170/
+11. Victory.mp3 - https://pixabay.com/sound-effects/victory-96688/
+12. no_ammo.mp3 - https://pixabay.com/sound-effects/empty-gun-shot-6209/
+13. shot.wav - Coding with Russ Github: https://github.com/russs123/Shooter/tree/main/audio
+14. Plague image - https://world.taobao.com/item/591113610448.htm
+15. Use_powerups.mp3 - https://pixabay.com/sound-effects/in-game-level-uptype-2-230567/
+16. Paused.mp3 - https://geno.fineshare.com/sounds/jeopardy-theme-lowq.html
+17. Collect_powerups.mp3 - https://tuna.voicemod.net/sound/09fa9aac-5858-4c4e-8c74-9acc4f5ac505
+18. Everything else (including player image) - Abheek Tuladhar

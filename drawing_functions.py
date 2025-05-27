@@ -24,7 +24,6 @@ pygame.display.set_caption('ShapeStorm')
 
 BLACK = (0, 0, 0)
 BROWN = (145, 113, 76)
-WHITE = (255, 255, 255)
 GOLD = (255, 215, 0)
 GREEN = (0, 200, 0)
 YELLOW = (200, 200, 0)

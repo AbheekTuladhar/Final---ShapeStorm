@@ -5,32 +5,6 @@ HCP Final Project : ShapeStorm
 Description: A game where you shoot down enemy shapes that fall from the sky while collecting power ups to survive and make it back to your home planet.
 """
 
-"""
-MILESTONE LIST:
-1. Create the directions screen ✅
-2. Create the background with the dispensers, player, and play button ✅
-3. Make the player move left and right ✅
-4. Make the player shoot bullets ✅
-5. Make the bullets move up the screen ✅
-6. Add unfunctional powerups to the screen every VARIABLE seconds ✅
-7. Make bullets disappear when they hit a powerup ✅
-8. Make it so that powerup goes into the powerups section of the directions screen ✅
-9. Make it so hitting 1, 2, 3, or 4 deletes the powerup from the directions screen ✅
-10. Make the pause and play button functional ✅
-11. Make functional powerup for the ammo regen - DUE DATE 5/12 (Gotta study for those keystones) ✅
-12. Make random enemies spawn and move down the screen from the dispensers - DUE DATE 5/14 ✅
-13. Make the plague, shield, and slowtime powerups functional since enemies exist now - DUE DATE 5/15 ✅
-14. Make it so that the player can shoot the enemies and they disappear based on their color for lives - DUE DATE 5/16 ✅
-15. Make it so you can die and restart the game - DUE DATE 5/16 ✅
-16. Make a life powerup that gives you an extra life - DUE DATE 5/16 ✅
-17. Make it so that there are levels based on how many enemies the user has killed. Lower levels = easier enemies and less powerups and vice versa - DUE DATE 5/17 ✅
-18. Make it so that easier enemies spawn more often at lower levels and harder enemies spawn more often at higher levels - DUE DATE 5/17 ✅
-19. Add a way to win - DUE DATE 5/17 ✅
-20. Add enemy death animation - DUE DATE 5/18 ✅
-21. Refine details and make sure code is up to PEP standards - DUE DATE 5/23 ✅
-22. Make main() more function based than code based - DUE DATE 5/23 ✅
-"""
-
 try:
     import pygame
     import sys
@@ -54,7 +28,6 @@ pygame.display.set_caption('ShapeStorm')
 #Colors
 BLACK = (0, 0, 0)
 BROWN = (145, 113, 76)
-WHITE = (255, 255, 255)
 GOLD = (255, 215, 0)
 GREEN = (0, 200, 0)
 YELLOW = (200, 200, 0)
@@ -84,7 +57,7 @@ POWERUPS3 = [ammo_regen, ammo_regen, shield, shield, heart, heart, heart, slowti
 POWERUPS4 = [ammo_regen, shield, heart, slowtime, plague, plague] #1:1:1:1:2
 POWERUPS5 = [ammo_regen, shield, heart, heart, heart, slowtime, slowtime, plague, plague, plague, plague] #1:1:3:2:5
 
-#There actual names for if statements because POWERUPS# is a image, not a string.
+#There actual names for if statements because POWERUPS#is a image, not a string.
 PNAMES1 = ['ammo_regen'] #Should be impossible to get powerups on level 1 with the 99 second wait, but just in case
 PNAMES2 = ['ammo_regen', 'ammo_regen', 'ammo_regen', 'shield', 'shield', 'heart', 'heart', 'slowtime', 'slowtime', 'slowtime']
 PNAMES3 = ['ammo_regen', 'ammo_regen', 'shield', 'shield', 'heart', 'heart', 'heart', 'slowtime', 'slowtime', 'slowtime', 'slowtime', 'plague']
@@ -101,7 +74,7 @@ LEVEL5ENEMIES = ['hard', 'insane', 'insane', 'insane', 'insane', 'insane'] #Insa
 #The stats per level in a list of dictionaries
 LEVELED_INFO = ['PLACEHOLDER SO INDECIES ARE CORRECT. THIS IS NONFUNCTIONAL INDEX 0',
                 {'enemy_cooldown' : 4.0, 'player_speed' : 15, 'bullet_cooldown' : 1.0, 'powerup_cooldown' : 99, 'powerups' : POWERUPS1, 'powerup_names' : PNAMES1, 'enemy_choice' : LEVEL1ENEMIES},
-                {'enemy_cooldown' : 3.0, 'player_speed' : 17, 'bullet_cooldown' : 0.9, 'powerup_cooldown' : 2, 'powerups' : POWERUPS2, 'powerup_names' : PNAMES2, 'enemy_choice' : LEVEL2ENEMIES},
+                {'enemy_cooldown' : 3.0, 'player_speed' : 17, 'bullet_cooldown' : 0.9, 'powerup_cooldown' : 20, 'powerups' : POWERUPS2, 'powerup_names' : PNAMES2, 'enemy_choice' : LEVEL2ENEMIES},
                 {'enemy_cooldown' : 3.5, 'player_speed' : 19, 'bullet_cooldown' : 0.8, 'powerup_cooldown' : 15, 'powerups' : POWERUPS3, 'powerup_names' : PNAMES3, 'enemy_choice' : LEVEL3ENEMIES},
                 {'enemy_cooldown' : 2.0, 'player_speed' : 21, 'bullet_cooldown' : 0.7, 'powerup_cooldown' : 10, 'powerups' : POWERUPS4, 'powerup_names' : PNAMES4, 'enemy_choice' : LEVEL4ENEMIES},
                 {'enemy_cooldown' : 1.5, 'player_speed' : 23, 'bullet_cooldown' : 0.6, 'powerup_cooldown' :  5, 'powerups' : POWERUPS5, 'powerup_names' : PNAMES5, 'enemy_choice' : LEVEL5ENEMIES}
@@ -115,6 +88,12 @@ MUSIC = pygame.mixer.Sound('Audio/music.mp3')
 SHOT = pygame.mixer.Sound('Audio/shot.wav')
 NO_AMMO = pygame.mixer.Sound('Audio/no_ammo.mp3')
 GUN_COCK = pygame.mixer.Sound('Audio/gun_cock.wav')
+LOSE = pygame.mixer.Sound('Audio/lose.mp3')
+VICTORY = pygame.mixer.Sound('Audio/victory.mp3')
+ENEMY_DEATH = pygame.mixer.Sound('Audio/Pop.mp3')
+PAUSED = pygame.mixer.Sound('Audio/Paused.mp3')
+COLLECT_POWERUP = pygame.mixer.Sound('Audio/Collect_powerups.mp3')
+USE_POWERUP = pygame.mixer.Sound('Audio/Use_powerup.mp3')
 
 #Background music plays on repeat
 MUSIC.play(-1)
@@ -184,6 +163,8 @@ def powerup_effect(powerup_name, bullet_reload_time, enemies, lives, kills, dyin
 
         if kills >= 60: #Check win condition after updating kills
             win = True
+            MUSIC.stop()
+            VICTORY.play(-1)
             paused = True
 
     elif powerup_name == 'shield':
@@ -283,10 +264,14 @@ def pause_play_logic(PAUSE_BUTTON_HITBOX, mouse_pos, win, lose, PLAY_BUTTON_HITB
     if not paused: #If game is running, check for pause click
         if PAUSE_BUTTON_HITBOX.collidepoint(mouse_pos) and not win: #If the user did hit the pause button
             paused = True
+            MUSIC.stop()
+            PAUSED.play(-1)
             time_at_pause_start = pygame.time.get_ticks() #Record time when pausing
     else: #If game is paused, check for the user hitting the play button
         if not lose and not win and PLAY_BUTTON_HITBOX.collidepoint(mouse_pos): #Only unpause if game isn't over
             paused = False
+            PAUSED.stop()
+            MUSIC.play(-1)
             #Adjust all the timing variables to account for the time spent paused, that way there isn't a pause and wait for powerups to spawn strategy
             pause_duration = pygame.time.get_ticks() - time_at_pause_start #Amount of time spent paused
             #Update time variables
@@ -451,6 +436,7 @@ def powerup_logic(event, collected_powerups, AMMO_REGEN_EXPIRATION, SHIELD_EXPIR
         powerup_remove_idx = 3
 
     if powerup_name is not None: #If a powerup actually got used, then call powerup_effect()
+        USE_POWERUP.play()
         bullet_cooldown_time, enemies, shield_active, lives, kills, win, paused, dying_enemies = powerup_effect(powerup_name, bullet_cooldown_time, enemies, lives, kills, dying_enemies, current_time)
 
         #Timed powerups for expiration
@@ -627,6 +613,7 @@ def bullet_powerup_collisions(powerup_list, bullets, collected_powerups):
                 else: #If all the spots are filled, fill the new powerup in a random spot
                     collected_powerups[random.randint(0, 3)] = powerup_data
                 #Remove the bullet and powerup
+                COLLECT_POWERUP.play()
                 bullets.remove(bullet)
                 powerup_list.remove(powerup_data)
 
@@ -745,9 +732,13 @@ def enemy_bullet_collisions(bullets, dying_enemies, current_time, LEVEL_REQUIREM
                     kills += 1  #Increment kill count
                     #Add to dying_enemies list instead of removing from enemies directly
                     dying_enemies.append({'enemy_data': enemy, 'animation_start_time': current_time})
+                    ENEMY_DEATH.play()
 
                     if kills >= 60:
                         win = True
+                        MUSIC.stop()
+                        PAUSED.stop()
+                        VICTORY.play(-1)
                         paused = True
 
                     #Level Update (should happen when enemy is confirmed killed)
@@ -823,6 +814,8 @@ def removing_lives_logic(enemies, lives, lose, paused):
             lives -= 1
             if lives <= 0: #If the player died
                 lose = True
+                MUSIC.stop()
+                LOSE.play()
                 paused = True
         #Removes it
         else:
@@ -1014,6 +1007,10 @@ def main():
     current_time, LEVEL_REQUIREMENTS = game_variables()
 
 
+    #Initial sound state for a fresh game (starts paused)
+    MUSIC.stop()
+    PAUSED.play(-1)
+
     #Game Loop!
     while True:
         mouse_pos = pygame.mouse.get_pos() #Mouse position for pausing/playing
@@ -1023,12 +1020,21 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r: #Restart the game
+                #Stop all potentially looping sounds before resetting variables
+                MUSIC.stop()
+                PAUSED.stop()
+                VICTORY.stop()
+                #LOSE.stop() #LOSE sound is short, not looped
+
                 #Game Variables
                 player_x, player_speed, lives, kills, level, lose, win, LEFTWALL, RIGHTWALL, paused, last_enemy_spawn_time, enemy_speed, enemies, dying_enemies, \
                 enemy_cooldown, enemy_choice, possible_x_pos, bullets, last_shot_time, cock_done, BULLET_WIDTH, BULLET_HEIGHT, BULLET_SPEED, bullet_cooldown_time, \
                 powerup_list, collected_powerups, powerup_cooldown, last_powerup_spawn_time, ammo_regen_time_end, slowtime_end, shield_time_end, shield_active, \
                 AMMO_REGEN_EXPIRATION, SLOWTIME_EXPIRATION, SHIELD_EXPIRATION, DEATH_ANIMATION_DURATION, PLAY_BUTTON_HITBOX, PAUSE_BUTTON_HITBOX, time_at_pause_start, \
                 current_time, LEVEL_REQUIREMENTS = game_variables()
+
+                #Set sound for the new paused state (game restarts paused)
+                PAUSED.play(-1)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 paused, last_enemy_spawn_time, last_shot_time, last_powerup_spawn_time, ammo_regen_time_end, slowtime_end, shield_time_end, time_at_pause_start = pause_play_logic(PAUSE_BUTTON_HITBOX, mouse_pos, win, lose, PLAY_BUTTON_HITBOX, paused, last_shot_time, last_enemy_spawn_time, last_powerup_spawn_time, ammo_regen_time_end, slowtime_end, shield_time_end, time_at_pause_start)
