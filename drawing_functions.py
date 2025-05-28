@@ -2,7 +2,7 @@
 Abheek Tuladhar
 Period 4 HCP
 HCP Final Project : ShapeStorm
-Description: .
+Description: All of the drawing code and functions
 """
 
 try:
