@@ -194,7 +194,7 @@ def enemy_health(enemy_type):
 
     Returns:
     --------
-    int
+    int 
         The health of the enemy
     """
 
