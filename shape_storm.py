@@ -101,7 +101,7 @@ MUSIC.play(-1)
 clock = pygame.time.Clock()
 
 
-def powerup_effect(powerup_name, bullet_reload_time, enemies, lives, kills, dying_enemies, current_time):
+def powerup_effect(powerup_name, bullet_reload_time, enemies, lives, kills, dying_enemies, current_time, shield_active):
     """
     Applies the effect of the powerup to the player
 
@@ -121,6 +121,8 @@ def powerup_effect(powerup_name, bullet_reload_time, enemies, lives, kills, dyin
         A list of enemy dictionaries that are currently in their death animation.
     current_time : int
         The current game time in milliseconds, for timing the death animation.
+    shield_active : bool
+        Whether the shield powerup is currently active.
 
     Returns:
     --------
@@ -142,7 +144,6 @@ def powerup_effect(powerup_name, bullet_reload_time, enemies, lives, kills, dyin
         The updated list of dying_enemies.
     """
 
-    shield_active = False
     win = False
     paused = False
 
@@ -194,7 +195,7 @@ def enemy_health(enemy_type):
 
     Returns:
     --------
-    int 
+    int
         The health of the enemy
     """
 
@@ -437,7 +438,7 @@ def powerup_logic(event, collected_powerups, AMMO_REGEN_EXPIRATION, SHIELD_EXPIR
 
     if powerup_name is not None: #If a powerup actually got used, then call powerup_effect()
         USE_POWERUP.play()
-        bullet_cooldown_time, enemies, shield_active, lives, kills, win, paused, dying_enemies = powerup_effect(powerup_name, bullet_cooldown_time, enemies, lives, kills, dying_enemies, current_time)
+        bullet_cooldown_time, enemies, shield_active, lives, kills, win, paused, dying_enemies = powerup_effect(powerup_name, bullet_cooldown_time, enemies, lives, kills, dying_enemies, current_time, shield_active)
 
         #Timed powerups for expiration
         if powerup_name == 'ammo_regen':
