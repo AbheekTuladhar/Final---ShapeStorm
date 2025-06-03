@@ -215,7 +215,7 @@ def draw_directions(level, kills):
     show_message('Kill all enemies below half way line', 'Consolas', 10, 9 * XU, 14.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(slowtime, (30, 30)), (0, 15 * YU)) #draw slowtime image
-    show_message('Slow down the enemies for 3 seconds by 50%', 'Consolas', 10, 10 * XU, 16.5 * YU, GOLD)
+    show_message('Slow down the enemies for 5 seconds by 50%', 'Consolas', 10, 10 * XU, 16.5 * YU, GOLD)
 
     surface.blit(pygame.transform.scale(shield, (30, 30)), (0, 17.5 * YU)) #draw shield image
     show_message('Shield for 5 seconds', 'Consolas', 10, 6 * XU, 19 * YU, GOLD)

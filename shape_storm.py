@@ -961,7 +961,7 @@ def game_variables():
     shield_active = False
     AMMO_REGEN_EXPIRATION = 5000 #5 seconds
     SLOWTIME_EXPIRATION = 5000 #5 seconds
-    SHIELD_EXPIRATION = 3000 #3 seconds
+    SHIELD_EXPIRATION = 5000 #5 seconds
     DEATH_ANIMATION_DURATION = 500 #0.5 seconds
 
     #Pause/Play Variables
